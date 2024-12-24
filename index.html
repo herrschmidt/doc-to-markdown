@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document to Markdown Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.3/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-base-200 p-4">
+    <div class="container mx-auto">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title">Document to Markdown Converter</h2>
+                
+                <!-- Drag and Drop Zone -->
+                <div id="dropZone" class="border-4 border-dashed border-base-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors">
+                    <div class="flex flex-col items-center gap-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <div>
+                            <p class="text-lg font-semibold">Drag and drop files here</p>
+                            <p class="text-sm text-base-content/70">or click to select files</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Input (Hidden) -->
+                <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="hidden">
+                    <span class="loading loading-spinner loading-lg"></span>
+                </div>
+
+                <!-- Result Section -->
+                <div id="resultSection" class="hidden mt-4">
+                    <div class="divider">Result</div>
+                    
+                    <!-- Markdown Output -->
+                    <div class="bg-base-200 rounded-lg p-4">
+                        <pre id="markdownOutput" class="whitespace-pre-wrap break-words"></pre>
+                    </div>
+
+                    <!-- Download Button -->
+                    <div class="card-actions justify-end mt-4">
+                        <button id="downloadBtn" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download Markdown
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultSection = document.getElementById('resultSection');
+        const markdownOutput = document.getElementById('markdownOutput');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-primary');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-primary');
+        }
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            loadingIndicator.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+
+            // TODO: Replace with actual API call
+            // For now, we'll simulate an API call with a timeout
+            setTimeout(() => {
+                // Simulate API response
+                const mockMarkdown = `# Converted Document
+This is a simulated markdown output.
+The actual API integration will be implemented later.
+
+## File Information
+- Number of files: ${files.length}
+- File names: ${Array.from(files).map(f => f.name).join(', ')}`;
+
+                markdownOutput.textContent = mockMarkdown;
+                loadingIndicator.classList.add('hidden');
+                resultSection.classList.remove('hidden');
+            }, 1500);
+        }
+
+        // Handle download
+        downloadBtn.addEventListener('click', () => {
+            const markdown = markdownOutput.textContent;
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_document.md';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        });
+    </script>
+</body>
+</html>
