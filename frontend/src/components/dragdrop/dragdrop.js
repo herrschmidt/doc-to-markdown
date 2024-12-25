@@ -1,3 +1,5 @@
+// @ts-check
+
 class FileDropZone {
     constructor(options = {}) {
         this.options = {
@@ -91,23 +93,27 @@ class FileDropZone {
         this.options.onFilesReceived(files);
     }
 
-    static createDropZone(containerId) {
+    static createDropZone(containerId, options = {}) {
         const container = document.getElementById(containerId);
         if (!container) return;
 
         container.innerHTML = `
             <div class="border-4 border-dashed border-base-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors">
                 <div class="flex flex-col items-center gap-4">
-                    ${this.options?.icon || `
+                    ${options.icon || `
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>`}
                     <div>
-                        <p class="text-lg font-semibold">${this.options?.mainText || 'Drag and drop files here'}</p>
-                        <p class="text-sm text-base-content/70">${this.options?.subText || 'or click to select files'}</p>
+                        <p class="text-lg font-semibold">${options.mainText || 'Drag and drop files here'}</p>
+                        <p class="text-sm text-base-content/70">${options.subText || 'or click to select files'}</p>
                     </div>
                 </div>
             </div>
         `;
     }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = FileDropZone;
 }
