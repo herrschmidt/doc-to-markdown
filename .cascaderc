@@ -1,0 +1,118 @@
+# OpenHands Instructions for doc-to-markdown
+
+## Project Overview
+This is a web application that converts various document formats (images, PDFs, DOC, DOCX, TXT) to Markdown format using FastAPI and DaisyUI.
+
+## Development Setup
+
+### Frontend
+1. Navigate to frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start development server:
+```bash
+cd src && python3 -m http.server 8000
+```
+
+The frontend will be available at http://localhost:8000/index.html
+
+### Backend
+1. Navigate to backend directory:
+```bash
+cd backend
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Start development server:
+```bash
+uvicorn src.main:app --reload --port 8001
+```
+
+The API will be available at http://localhost:8001
+
+## Project Structure
+```
+doc-to-markdown/
+├── frontend/
+│   ├── src/                      # Source code
+│   │   ├── components/           # Reusable UI components
+│   │   │   └── dragdrop/        # Drag and drop file upload component
+│   │   ├── styles/              # Global styles
+│   │   ├── utils/               # Frontend utilities
+│   │   └── index.html           # Main HTML file
+│   ├── public/                  # Static assets
+│   └── tests/                  # Frontend tests
+├── backend/
+│   ├── src/                    # Source code
+│   │   ├── api/               # API routes
+│   │   ├── services/          # Business logic
+│   │   ├── models/           # Data models
+│   │   └── utils/            # Backend utilities
+│   └── tests/                # Backend tests
+├── docs/                     # Documentation
+├── scripts/                  # Development scripts
+└── .github/                  # GitHub workflows
+```
+
+## Common Tasks
+
+### Adding a New Component
+1. Create a new directory in `frontend/src/components/`
+2. Include component files (JS, CSS)
+3. Add documentation in the component's README.md
+4. Import and use the component in other files
+
+### Running Tests
+Frontend tests:
+```bash
+cd frontend && npm test
+```
+
+Backend tests:
+```bash
+cd backend && pytest
+```
+
+### Building for Production
+1. Build frontend:
+```bash
+cd frontend && npm run build
+```
+
+2. Deploy backend:
+```bash
+cd backend && docker-compose up -d
+```
+
+## Git Workflow
+1. Create a new branch for your feature:
+```bash
+git checkout -b feature-name
+```
+
+2. Make your changes and commit:
+```bash
+git add .
+git commit -m "Description of changes"
+```
+
+3. Push changes and create a pull request:
+```bash
+git push -u origin feature-name
+```
+
+## Documentation
+- Frontend documentation: docs/frontend/README.md
+- Backend documentation: docs/backend/README.md
+- API documentation: docs/api/README.md
