@@ -143,7 +143,13 @@ async def convert_document(file_path: str) -> str:
      │       └── documents.py
      └── requirements.txt
      ```
-2. [ ] Set up the development environment
+2. [x] Set up the development environment
+   - Created on: 2024-12-25
+   - Installed dependencies:
+     - FastAPI and related packages
+     - docling library and its dependencies
+   - Created basic FastAPI application
+   - Tested health endpoint successfully
 3. [ ] Implement core conversion functionality
 4. [ ] Build the API endpoints
 5. [ ] Add tests
