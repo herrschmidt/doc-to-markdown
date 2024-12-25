@@ -57,67 +57,29 @@
         </div>
     </div>
 
+    <link rel="stylesheet" href="components/dragdrop/dragdrop.css">
+    <script src="components/dragdrop/dragdrop.js"></script>
     <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const resultSection = document.getElementById('resultSection');
         const markdownOutput = document.getElementById('markdownOutput');
         const downloadBtn = document.getElementById('downloadBtn');
 
-        // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
+        // Initialize the drag and drop zone
+        const dropZone = new FileDropZone({
+            containerId: 'dropZone',
+            inputId: 'fileInput',
+            accept: 'image/*,.pdf,.doc,.docx,.txt',
+            multiple: true,
+            onFilesReceived: (files) => {
+                loadingIndicator.classList.remove('hidden');
+                resultSection.classList.add('hidden');
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Highlight drop zone when dragging over it
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            dropZone.classList.add('border-primary');
-        }
-
-        function unhighlight(e) {
-            dropZone.classList.remove('border-primary');
-        }
-
-        // Handle dropped files
-        dropZone.addEventListener('drop', handleDrop, false);
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFileSelect);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        function handleFileSelect(e) {
-            const files = e.target.files;
-            handleFiles(files);
-        }
-
-        function handleFiles(files) {
-            loadingIndicator.classList.remove('hidden');
-            resultSection.classList.add('hidden');
-
-            // TODO: Replace with actual API call
-            // For now, we'll simulate an API call with a timeout
-            setTimeout(() => {
-                // Simulate API response
-                const mockMarkdown = `# Converted Document
+                // TODO: Replace with actual API call
+                // For now, we'll simulate an API call with a timeout
+                setTimeout(() => {
+                    // Simulate API response
+                    const mockMarkdown = `# Converted Document
 This is a simulated markdown output.
 The actual API integration will be implemented later.
 
@@ -125,11 +87,15 @@ The actual API integration will be implemented later.
 - Number of files: ${files.length}
 - File names: ${Array.from(files).map(f => f.name).join(', ')}`;
 
-                markdownOutput.textContent = mockMarkdown;
-                loadingIndicator.classList.add('hidden');
-                resultSection.classList.remove('hidden');
-            }, 1500);
-        }
+                    markdownOutput.textContent = mockMarkdown;
+                    loadingIndicator.classList.add('hidden');
+                    resultSection.classList.remove('hidden');
+                }, 1500);
+            }
+        });
+
+        // Create the initial drop zone HTML
+        FileDropZone.createDropZone('dropZone');
 
         // Handle download
         downloadBtn.addEventListener('click', () => {
