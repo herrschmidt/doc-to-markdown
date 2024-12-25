@@ -1,0 +1,8 @@
+.file-drop-zone {
+    transition: all 0.3s ease;
+}
+
+.file-drop-zone.dragging {
+    transform: scale(1.02);
+    border-color: currentColor;
+}
