@@ -4,33 +4,24 @@ import mimetypes
 import magic
 from fastapi import HTTPException, UploadFile
 from docling.document_converter import DocumentConverter as DoclingConverter
-from docling.datamodel.base_models import InputFormat, ConversionResult
 
 class DocumentConverter:
     SUPPORTED_FORMATS = {
-        'application/pdf': InputFormat.PDF,
-        'image/jpeg': InputFormat.IMAGE,
-        'image/png': InputFormat.IMAGE,
-        'image/gif': InputFormat.IMAGE,
-        'image/webp': InputFormat.IMAGE,
-        'application/msword': InputFormat.DOCX,
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': InputFormat.DOCX,
-        'text/html': InputFormat.HTML,
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': InputFormat.PPTX,
+        'application/pdf': 'pdf',
+        'image/jpeg': 'image',
+        'image/png': 'image',
+        'image/gif': 'image',
+        'image/webp': 'image',
+        'application/msword': 'docx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+        'text/html': 'html',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
     }
 
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
     def __init__(self):
-        self.converter = DoclingConverter(
-            allowed_formats=[
-                InputFormat.PDF,
-                InputFormat.IMAGE,
-                InputFormat.DOCX,
-                InputFormat.HTML,
-                InputFormat.PPTX,
-            ]
-        )
+        self.converter = DoclingConverter()
 
     async def detect_file_type(self, file_path: Path) -> str:
         """Detect the MIME type of a file using python-magic."""
@@ -82,7 +73,7 @@ class DocumentConverter:
             self.validate_file_type(mime_type)
 
             # Convert document
-            result: ConversionResult = self.converter.convert(str(save_path))
+            result = self.converter.convert(str(save_path))
             markdown_content = result.document.export_to_markdown()
 
             return {
