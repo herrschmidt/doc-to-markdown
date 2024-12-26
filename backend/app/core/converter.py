@@ -1,47 +1,46 @@
 from pathlib import Path
-from typing import List, Optional
-from io import BytesIO
-import mimetypes
 import magic
 from fastapi import HTTPException, UploadFile
 from docling.document_converter import DocumentConverter as DoclingConverter
+from docling.document_converter import PdfFormatOption
+from docling.datamodel.pipeline_options import PdfPipelineOptions, TesseractCliOcrOptions
 from docling.datamodel.base_models import InputFormat
-from docling.document_converter import PdfFormatOption, WordFormatOption
-from docling.datamodel.pipeline_options import PdfPipelineOptions
 
 class DocumentConverter:
-    SUPPORTED_FORMATS = {
-        'application/pdf': InputFormat.PDF,
-        'image/jpeg': InputFormat.IMAGE,
-        'image/png': InputFormat.IMAGE,
-        'image/gif': InputFormat.IMAGE,
-        'image/webp': InputFormat.IMAGE,
-        'application/msword': InputFormat.DOCX,
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': InputFormat.DOCX,
-        'text/html': InputFormat.HTML,
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': InputFormat.PPTX,
+    SUPPORTED_MIME_TYPES = {
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/html',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     }
 
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
     def __init__(self):
-        # Configure pipeline options
-        pipeline_options = PdfPipelineOptions()
-        pipeline_options.do_ocr = True  # Enable OCR for scanned documents
-        pipeline_options.do_table_structure = True  # Enable table structure recognition
+        # Configure OCR options
+        ocr_options = TesseractCliOcrOptions(
+            force_full_page_ocr=True,
+            lang=['eng'],  # Use English only for better accuracy
+        )
 
-        # Create converter with format-specific options
+        # Configure pipeline options with OCR enabled
+        pipeline_options = PdfPipelineOptions()
+        pipeline_options.do_ocr = True  # Enable OCR for scanned documents and images
+        pipeline_options.do_table_structure = False  # No need for table structure
+        pipeline_options.generate_page_images = True  # Enable image generation
+        pipeline_options.ocr_options = ocr_options  # Use OCR options with force_full_page_ocr
+
+        # Create converter with OCR enabled
         self.converter = DoclingConverter(
-            allowed_formats=[
-                InputFormat.PDF,
-                InputFormat.IMAGE,
-                InputFormat.DOCX,
-                InputFormat.HTML,
-                InputFormat.PPTX,
-            ],
+            allowed_formats=[InputFormat.PDF, InputFormat.IMAGE],
             format_options={
                 InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
-                InputFormat.DOCX: WordFormatOption(),
+                InputFormat.IMAGE: PdfFormatOption(pipeline_options=pipeline_options),
             }
         )
 
@@ -60,7 +59,7 @@ class DocumentConverter:
 
     def validate_file_type(self, mime_type: str) -> None:
         """Validate that the file type is supported."""
-        if mime_type not in self.SUPPORTED_FORMATS:
+        if mime_type not in self.SUPPORTED_MIME_TYPES:
             raise HTTPException(
                 status_code=415,
                 detail=f"Unsupported file type: {mime_type}"
@@ -82,7 +81,6 @@ class DocumentConverter:
         """
         try:
             # Validate file size
-            file_size = 0
             contents = await file.read()
             file_size = len(contents)
             self.validate_file_size(file_size)
