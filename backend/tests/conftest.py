@@ -2,6 +2,9 @@ import os
 import pytest
 from pathlib import Path
 from fastapi.testclient import TestClient
+from PIL import Image
+from reportlab.pdfgen import canvas
+from io import BytesIO
 from app.main import app
 
 @pytest.fixture
@@ -12,16 +15,22 @@ def test_client():
 @pytest.fixture
 def fixtures_dir():
     """Get the path to the test fixtures directory."""
-    return Path(__file__).parent / "fixtures"
+    fixtures_dir = Path(__file__).parent / "fixtures"
+    fixtures_dir.mkdir(exist_ok=True)
+    return fixtures_dir
 
 @pytest.fixture
 def sample_pdf(fixtures_dir):
     """Create a sample PDF file for testing."""
     pdf_path = fixtures_dir / "sample.pdf"
     if not pdf_path.exists():
-        # Create a minimal PDF file for testing
-        with open(pdf_path, "wb") as f:
-            f.write(b"%PDF-1.4\n%EOF\n")
+        # Create a valid PDF file with some content
+        c = canvas.Canvas(str(pdf_path))
+        c.setFont("Helvetica", 12)
+        c.drawString(100, 750, "Test PDF Document")
+        c.drawString(100, 730, "This is a test document created for testing purposes.")
+        c.drawString(100, 710, "It contains some text that should be converted to markdown.")
+        c.save()
     return pdf_path
 
 @pytest.fixture
@@ -29,9 +38,14 @@ def sample_image(fixtures_dir):
     """Create a sample PNG image for testing."""
     img_path = fixtures_dir / "sample.png"
     if not img_path.exists():
-        # Create a minimal PNG file for testing
-        with open(img_path, "wb") as f:
-            f.write(b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR\0\0\0\1\0\0\0\1\1\0\0\0\x37\x6e\xf9\x24\0\0\0\nIDAT\x08\x99c`\0\0\0\2\0\1\xe5\x27\xde\xfc\0\0\0\0IEND\xaeB`\x82")
+        # Create a valid PNG image with some content
+        img = Image.new('RGB', (200, 100), color='white')
+        # Add some text to the image
+        from PIL import ImageDraw
+        draw = ImageDraw.Draw(img)
+        draw.text((10, 10), "Test Image", fill='black')
+        draw.text((10, 30), "This is a test image", fill='black')
+        img.save(img_path, format='PNG')
     return img_path
 
 @pytest.fixture
@@ -42,3 +56,5 @@ def cleanup_fixtures(fixtures_dir):
     for file in fixtures_dir.glob("*"):
         if file.is_file():
             file.unlink()
+    if fixtures_dir.exists():
+        fixtures_dir.rmdir()

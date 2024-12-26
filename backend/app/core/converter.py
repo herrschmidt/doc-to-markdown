@@ -1,9 +1,11 @@
 from pathlib import Path
 from typing import List, Optional
+from io import BytesIO
 import mimetypes
 import magic
 from fastapi import HTTPException, UploadFile
 from docling.document_converter import DocumentConverter as DoclingConverter
+from docling.datamodel.base_models import DocumentStream
 
 class DocumentConverter:
     SUPPORTED_FORMATS = {
@@ -65,15 +67,15 @@ class DocumentConverter:
             file_size = len(contents)
             self.validate_file_size(file_size)
 
-            # Save file temporarily
+            # Save file temporarily to detect type
             save_path.write_bytes(contents)
-
-            # Detect and validate file type
             mime_type = await self.detect_file_type(save_path)
             self.validate_file_type(mime_type)
 
-            # Convert document
-            result = self.converter.convert(str(save_path))
+            # Convert document using BytesIO stream
+            stream = BytesIO(contents)
+            doc_stream = DocumentStream(name=file.filename, stream=stream)
+            result = self.converter.convert(doc_stream)
             markdown_content = result.document.export_to_markdown()
 
             return {
