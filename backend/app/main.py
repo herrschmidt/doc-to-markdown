@@ -21,12 +21,12 @@ app.add_middleware(
 # Add routers
 app.include_router(
     convert.router,
-    prefix=f"{settings.api_prefix}/v1",
+    prefix=settings.api_prefix,
     tags=["conversion"],
 )
 
 @app.get(
-    f"{settings.api_prefix}/health",
+    "/api/health",
     tags=["health"],
     description="Check if the service is healthy",
 )
