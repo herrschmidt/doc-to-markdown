@@ -161,6 +161,56 @@ markdown_content = result.document.export_to_markdown()
    - Need pytest-asyncio for async tests
    - Need httpx for API testing
 
+## Image Conversion Challenges
+
+### Attempted Approaches
+1. Using PdfFormatOption with PdfPipelineOptions for both PDF and images
+   - Issue: Returns `<!-- image -->` instead of actual text
+   - Tried enabling OCR but still no text extraction
+
+2. Using TesseractCliOcrOptions with force_full_page_ocr=True
+   - Issue: Tesseract fails with "Can only use .str accessor with string values!"
+   - Seems to be a pandas DataFrame issue in docling's internal processing
+
+3. Using different image formats and sizes
+   - Created larger images (800x200) for better readability
+   - Made text bolder by drawing it multiple times with small offsets
+   - Saved with high quality (quality=100)
+   - Still no text extraction
+
+### Required Dependencies
+1. Core dependencies:
+   ```
+   docling
+   docling-core
+   pypdfium2
+   requests
+   ```
+
+2. OCR dependencies:
+   ```
+   tesseract-ocr  # System package
+   tesseract-ocr-eng  # English language data
+   ```
+
+### Potential Solutions to Try
+1. Use EasyOCR instead of Tesseract
+   - EasyOCR is more modern and might handle images better
+   - Need to install additional dependencies
+
+2. Try different image preprocessing
+   - Increase contrast
+   - Add padding around text
+   - Use a specific font and size
+
+3. Try using docling's image-specific pipeline
+   - Need to investigate if docling has special handling for images
+   - May need to use a different format option
+
+4. Consider using a different approach for images
+   - Direct OCR without docling for images
+   - Custom image processing pipeline
+
 ## References
 - docling GitHub: https://github.com/DS4SD/docling
 - docling Documentation: https://ds4sd.github.io/docling/
