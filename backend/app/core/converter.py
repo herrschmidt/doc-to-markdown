@@ -5,25 +5,45 @@ import mimetypes
 import magic
 from fastapi import HTTPException, UploadFile
 from docling.document_converter import DocumentConverter as DoclingConverter
-from docling.datamodel.base_models import DocumentStream
+from docling.datamodel.base_models import InputFormat
+from docling.document_converter import PdfFormatOption, WordFormatOption
+from docling.datamodel.pipeline_options import PdfPipelineOptions
 
 class DocumentConverter:
     SUPPORTED_FORMATS = {
-        'application/pdf': 'pdf',
-        'image/jpeg': 'image',
-        'image/png': 'image',
-        'image/gif': 'image',
-        'image/webp': 'image',
-        'application/msword': 'docx',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-        'text/html': 'html',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+        'application/pdf': InputFormat.PDF,
+        'image/jpeg': InputFormat.IMAGE,
+        'image/png': InputFormat.IMAGE,
+        'image/gif': InputFormat.IMAGE,
+        'image/webp': InputFormat.IMAGE,
+        'application/msword': InputFormat.DOCX,
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': InputFormat.DOCX,
+        'text/html': InputFormat.HTML,
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation': InputFormat.PPTX,
     }
 
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
     def __init__(self):
-        self.converter = DoclingConverter()
+        # Configure pipeline options
+        pipeline_options = PdfPipelineOptions()
+        pipeline_options.do_ocr = True  # Enable OCR for scanned documents
+        pipeline_options.do_table_structure = True  # Enable table structure recognition
+
+        # Create converter with format-specific options
+        self.converter = DoclingConverter(
+            allowed_formats=[
+                InputFormat.PDF,
+                InputFormat.IMAGE,
+                InputFormat.DOCX,
+                InputFormat.HTML,
+                InputFormat.PPTX,
+            ],
+            format_options={
+                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
+                InputFormat.DOCX: WordFormatOption(),
+            }
+        )
 
     async def detect_file_type(self, file_path: Path) -> str:
         """Detect the MIME type of a file using python-magic."""
@@ -72,10 +92,8 @@ class DocumentConverter:
             mime_type = await self.detect_file_type(save_path)
             self.validate_file_type(mime_type)
 
-            # Convert document using BytesIO stream
-            stream = BytesIO(contents)
-            doc_stream = DocumentStream(name=file.filename, stream=stream)
-            result = self.converter.convert(doc_stream)
+            # Convert document using the file path
+            result = self.converter.convert(str(save_path))
             markdown_content = result.document.export_to_markdown()
 
             return {
