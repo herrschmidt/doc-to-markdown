@@ -15,3 +15,5 @@ httpx>=0.24.1  # Required by TestClient
 # Additional test dependencies
 reportlab>=4.1.0  # For creating test PDFs
 pillow>=10.4.0  # For creating test images
+python-pptx>=0.6.21  # For creating test PowerPoint files
+python-magic>=0.4.27  # For file type detection
