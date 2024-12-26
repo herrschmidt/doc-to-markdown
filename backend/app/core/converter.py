@@ -6,8 +6,8 @@ import magic
 from fastapi import HTTPException, UploadFile
 from docling.document_converter import DocumentConverter as DoclingConverter
 from docling.datamodel.base_models import InputFormat
-from docling.document_converter import PdfFormatOption, WordFormatOption
-from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.document_converter import PdfFormatOption, WordFormatOption, ImageFormatOption
+from docling.datamodel.pipeline_options import PdfPipelineOptions, ImagePipelineOptions
 
 class DocumentConverter:
     SUPPORTED_FORMATS = {
@@ -25,10 +25,15 @@ class DocumentConverter:
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
     def __init__(self):
-        # Configure pipeline options
-        pipeline_options = PdfPipelineOptions()
-        pipeline_options.do_ocr = True  # Enable OCR for scanned documents
-        pipeline_options.do_table_structure = True  # Enable table structure recognition
+        # Configure PDF pipeline options
+        pdf_pipeline_options = PdfPipelineOptions()
+        pdf_pipeline_options.do_ocr = True  # Enable OCR for scanned documents
+        pdf_pipeline_options.do_table_structure = True  # Enable table structure recognition
+
+        # Configure image pipeline options
+        image_pipeline_options = ImagePipelineOptions()
+        image_pipeline_options.do_ocr = True  # Enable OCR for images
+        image_pipeline_options.do_layout_analysis = True  # Enable layout analysis for better structure detection
 
         # Create converter with format-specific options
         self.converter = DoclingConverter(
@@ -40,7 +45,8 @@ class DocumentConverter:
                 InputFormat.PPTX,
             ],
             format_options={
-                InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
+                InputFormat.PDF: PdfFormatOption(pipeline_options=pdf_pipeline_options),
+                InputFormat.IMAGE: ImageFormatOption(pipeline_options=image_pipeline_options),
                 InputFormat.DOCX: WordFormatOption(),
             }
         )
