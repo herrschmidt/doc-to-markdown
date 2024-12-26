@@ -84,14 +84,42 @@ GET /api/health
 
 ### Document Conversion Implementation (docling v2)
 ```python
-from docling.document_converter import DocumentConverter, PdfFormatOption, WordFormatOption
+from docling.document_converter import (
+    DocumentConverter,
+    PdfFormatOption,
+    WordFormatOption,
+    ImageFormatOption,
+    # TODO: Import HTML and PPTX format options
+    # HTMLFormatOption,
+    # PPTXFormatOption,
+)
 from docling.datamodel.base_models import InputFormat
-from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.datamodel.pipeline_options import (
+    PdfPipelineOptions,
+    ImagePipelineOptions,
+    # TODO: Import HTML and PPTX pipeline options
+    # HTMLPipelineOptions,
+    # PPTXPipelineOptions,
+)
 
-# Configure pipeline options
-pipeline_options = PdfPipelineOptions()
-pipeline_options.do_ocr = True  # Enable OCR for scanned documents
-pipeline_options.do_table_structure = True  # Enable table structure recognition
+# Configure pipeline options for each format
+pdf_pipeline_options = PdfPipelineOptions()
+pdf_pipeline_options.do_ocr = True  # Enable OCR for scanned documents
+pdf_pipeline_options.do_table_structure = True  # Enable table structure recognition
+
+image_pipeline_options = ImagePipelineOptions()
+image_pipeline_options.do_ocr = True  # Enable OCR for images
+image_pipeline_options.do_layout_analysis = True  # Enable layout analysis
+
+# TODO: Configure HTML pipeline options
+# html_pipeline_options = HTMLPipelineOptions()
+# html_pipeline_options.extract_tables = True
+# html_pipeline_options.preserve_lists = True
+
+# TODO: Configure PowerPoint pipeline options
+# pptx_pipeline_options = PPTXPipelineOptions()
+# pptx_pipeline_options.extract_notes = True
+# pptx_pipeline_options.preserve_layout = True
 
 # Create converter with format-specific options
 converter = DocumentConverter(
@@ -103,8 +131,12 @@ converter = DocumentConverter(
         InputFormat.PPTX,
     ],
     format_options={
-        InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options),
+        InputFormat.PDF: PdfFormatOption(pipeline_options=pdf_pipeline_options),
+        InputFormat.IMAGE: ImageFormatOption(pipeline_options=image_pipeline_options),
         InputFormat.DOCX: WordFormatOption(),
+        # TODO: Add HTML and PPTX format options
+        # InputFormat.HTML: HTMLFormatOption(pipeline_options=html_pipeline_options),
+        # InputFormat.PPTX: PPTXFormatOption(pipeline_options=pptx_pipeline_options),
     }
 )
 
@@ -201,4 +233,23 @@ markdown_content = result.document.export_to_markdown()
 3. [x] Implement core conversion functionality
 4. [x] Build the API endpoints
 5. [x] Add tests
-6. [ ] Document the API
+6. [x] Add image pipeline with OCR support
+   - Added on: 2024-12-26
+   - Implemented ImageFormatOption with OCR
+   - Added layout analysis for better structure
+   - Created test scripts with sample images
+   - Verified text extraction and formatting
+7. [ ] Configure remaining document pipelines
+   - HTML pipeline configuration
+     - Add HTMLFormatOption with appropriate settings
+     - Configure table and list extraction
+     - Add tests for HTML conversion
+   - PowerPoint pipeline configuration
+     - Add PPTXFormatOption with slide handling
+     - Configure slide layout analysis
+     - Add tests for PPTX conversion
+   - Test all pipelines together
+     - Create mixed-format test cases
+     - Verify consistent markdown output
+     - Check format-specific features
+8. [ ] Document the API
