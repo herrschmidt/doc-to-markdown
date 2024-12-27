@@ -4,7 +4,11 @@ from pathlib import Path
 from fastapi import HTTPException, UploadFile
 from app.core.converter import DocumentConverter
 from docling.datamodel.base_models import InputFormat
-from docling.document_converter import DocumentConverter as DoclingConverter, ImageFormatOption
+from docling.document_converter import (
+    DocumentConverter as DoclingConverter,
+    ImageFormatOption,
+    PdfFormatOption
+)
 from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 
@@ -18,16 +22,19 @@ def converter():
     # Create a converter with default options
     converter = DocumentConverter()
     
-    # Override the image format options to use OCR
+    # Override the pipeline options to use OCR
     pipeline_options = PdfPipelineOptions()
     pipeline_options.do_ocr = True
     pipeline_options.do_table_structure = True
     
     converter.converter = DoclingConverter(
-        allowed_formats=[InputFormat.IMAGE],
+        allowed_formats=[InputFormat.IMAGE, InputFormat.PDF],
         format_options={
             InputFormat.IMAGE: ImageFormatOption(
                 pipeline_cls=StandardPdfPipeline,
+                pipeline_options=pipeline_options
+            ),
+            InputFormat.PDF: PdfFormatOption(
                 pipeline_options=pipeline_options
             ),
         },
