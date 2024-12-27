@@ -14,10 +14,10 @@
                 <h2 class="card-title">Document to Markdown Converter</h2>
                 
                 <!-- Drag and Drop Zone -->
-                <div id="dropZone"></div>
+                <div id="dropZone" data-testid="dropZone"></div>
 
                 <!-- File Input (Hidden) -->
-                <input type="file" id="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
+                <input type="file" id="fileInput" data-testid="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
 
                 <!-- Loading Indicator -->
                 <div id="loadingIndicator" class="hidden">
@@ -65,22 +65,33 @@
                 loadingIndicator.classList.remove('hidden');
                 resultSection.classList.add('hidden');
 
-                // TODO: Replace with actual API call
-                // For now, we'll simulate an API call with a timeout
-                setTimeout(() => {
-                    // Simulate API response
-                    const mockMarkdown = `# Converted Document
-This is a simulated markdown output.
-The actual API integration will be implemented later.
+                // Create FormData and append the first file
+                const formData = new FormData();
+                const file = Array.from(files)[0];
+                formData.append('file', file);
 
-## File Information
-- Number of files: ${files.length}
-- File names: ${Array.from(files).map(f => f.name).join(', ')}`;
-
-                    markdownOutput.textContent = mockMarkdown;
+                // Call the real API
+                fetch('http://localhost:8001/api/v1/convert', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(markdown => {
+                    markdownOutput.textContent = markdown;
                     loadingIndicator.classList.add('hidden');
                     resultSection.classList.remove('hidden');
-                }, 1500);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    markdownOutput.textContent = `Error: ${error.message}`;
+                    loadingIndicator.classList.add('hidden');
+                    resultSection.classList.remove('hidden');
+                });
             }
         });
 
