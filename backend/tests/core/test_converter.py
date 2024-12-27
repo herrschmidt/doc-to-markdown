@@ -1,7 +1,12 @@
 import pytest
+import logging
 from pathlib import Path
 from fastapi import HTTPException, UploadFile
 from app.core.converter import DocumentConverter
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def converter():
@@ -44,10 +49,16 @@ def test_validate_file_type(converter):
 @pytest.mark.asyncio
 async def test_convert_pdf(converter, sample_pdf, tmp_path):
     """Test PDF conversion."""
+    logger.info(f"Testing PDF conversion with sample file: {sample_pdf}")
+    logger.info(f"Sample PDF exists: {sample_pdf.exists()}")
+    logger.info(f"Sample PDF size: {sample_pdf.stat().st_size} bytes")
+    
     # Create a mock UploadFile
     class MockUploadFile(UploadFile):
         async def read(self):
-            return open(sample_pdf, "rb").read()
+            content = open(sample_pdf, "rb").read()
+            logger.info(f"Read {len(content)} bytes from sample PDF")
+            return content
 
     upload_file = MockUploadFile(
         filename="test.pdf",
@@ -55,7 +66,15 @@ async def test_convert_pdf(converter, sample_pdf, tmp_path):
     )
 
     # Test conversion
-    result = await converter.convert(upload_file, tmp_path / "test.pdf")
+    save_path = tmp_path / "test.pdf"
+    logger.info(f"Converting PDF to: {save_path}")
+    result = await converter.convert(upload_file, save_path)
+    
+    logger.info("Conversion result metadata:")
+    logger.info(f"  Original file: {result.get('metadata', {}).get('original_file')}")
+    logger.info(f"  MIME type: {result.get('metadata', {}).get('mime_type')}")
+    logger.info(f"  Content length: {len(result.get('content', ''))}")
+    logger.info(f"  Content preview: {result.get('content', '')[:200]}")
     
     assert isinstance(result, dict)
     assert "content" in result
@@ -66,10 +85,16 @@ async def test_convert_pdf(converter, sample_pdf, tmp_path):
 @pytest.mark.asyncio
 async def test_convert_image(converter, sample_image, tmp_path):
     """Test image conversion."""
+    logger.info(f"Testing image conversion with sample file: {sample_image}")
+    logger.info(f"Sample image exists: {sample_image.exists()}")
+    logger.info(f"Sample image size: {sample_image.stat().st_size} bytes")
+    
     # Create a mock UploadFile
     class MockUploadFile(UploadFile):
         async def read(self):
-            return open(sample_image, "rb").read()
+            content = open(sample_image, "rb").read()
+            logger.info(f"Read {len(content)} bytes from sample image")
+            return content
 
     upload_file = MockUploadFile(
         filename="test.png",
@@ -77,7 +102,15 @@ async def test_convert_image(converter, sample_image, tmp_path):
     )
 
     # Test conversion
-    result = await converter.convert(upload_file, tmp_path / "test.png")
+    save_path = tmp_path / "test.png"
+    logger.info(f"Converting image to: {save_path}")
+    result = await converter.convert(upload_file, save_path)
+    
+    logger.info("Conversion result metadata:")
+    logger.info(f"  Original file: {result.get('metadata', {}).get('original_file')}")
+    logger.info(f"  MIME type: {result.get('metadata', {}).get('mime_type')}")
+    logger.info(f"  Content length: {len(result.get('content', ''))}")
+    logger.info(f"  Content preview: {result.get('content', '')[:200]}")
     
     assert isinstance(result, dict)
     assert "content" in result
