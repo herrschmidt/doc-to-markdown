@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw, ImageFont
 from reportlab.pdfgen import canvas
 from io import BytesIO
+from docx import Document
 from app.main import app
 
 # Set up logging
@@ -80,6 +81,83 @@ def sample_image(fixtures_dir):
     logger.info(f"PNG file created successfully, size: {img_path.stat().st_size} bytes")
     
     return img_path
+
+@pytest.fixture
+def sample_docx(fixtures_dir):
+    """Create a sample DOCX file for testing."""
+    docx_path = fixtures_dir / "sample.docx"
+    logger.info(f"Creating sample DOCX at: {docx_path}")
+    
+    # Create a valid DOCX file with some content
+    logger.info("Creating new DOCX file with test content")
+    doc = Document()
+    doc.add_heading('Test Document', 0)
+    doc.add_paragraph('This is a test document created for testing purposes.')
+    doc.add_paragraph('It contains some text that should be converted to markdown.')
+    doc.save(str(docx_path))
+    logger.info(f"DOCX file created successfully, size: {docx_path.stat().st_size} bytes")
+    
+    return docx_path
+
+@pytest.fixture
+def sample_pptx(fixtures_dir):
+    """Create a sample PPTX file for testing."""
+    from pptx import Presentation
+    from pptx.util import Inches
+    
+    pptx_path = fixtures_dir / "sample.pptx"
+    logger.info(f"Creating sample PPTX at: {pptx_path}")
+    
+    # Create a valid PPTX file with some content
+    logger.info("Creating new PPTX file with test content")
+    prs = Presentation()
+    
+    # Add a title slide
+    slide = prs.slides.add_slide(prs.slide_layouts[0])
+    title = slide.shapes.title
+    subtitle = slide.placeholders[1]
+    title.text = "Test Presentation"
+    subtitle.text = "Created for testing purposes"
+    
+    # Add a content slide
+    slide = prs.slides.add_slide(prs.slide_layouts[1])
+    title = slide.shapes.title
+    body = slide.shapes.placeholders[1]
+    title.text = "Content Slide"
+    body.text = "This is a test slide with some content."
+    
+    prs.save(str(pptx_path))
+    logger.info(f"PPTX file created successfully, size: {pptx_path.stat().st_size} bytes")
+    
+    return pptx_path
+
+@pytest.fixture
+def sample_html(fixtures_dir):
+    """Create a sample HTML file for testing."""
+    html_path = fixtures_dir / "sample.html"
+    logger.info(f"Creating sample HTML at: {html_path}")
+    
+    # Create a valid HTML file with some content
+    logger.info("Creating new HTML file with test content")
+    html_content = """<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Document</title>
+</head>
+<body>
+    <h1>Test Document</h1>
+    <p>This is a test document created for testing purposes.</p>
+    <p>It contains some text that should be converted to markdown.</p>
+    <ul>
+        <li>First bullet point</li>
+        <li>Second bullet point</li>
+    </ul>
+</body>
+</html>"""
+    html_path.write_text(html_content)
+    logger.info(f"HTML file created successfully, size: {html_path.stat().st_size} bytes")
+    
+    return html_path
 
 @pytest.fixture
 def cleanup_fixtures(fixtures_dir):

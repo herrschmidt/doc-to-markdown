@@ -148,6 +148,117 @@ async def test_convert_image(converter, sample_image, tmp_path):
     assert result["metadata"]["mime_type"] == "image/png"
 
 @pytest.mark.asyncio
+async def test_convert_docx(converter, sample_docx, tmp_path):
+    """Test DOCX conversion."""
+    logger.info(f"Testing DOCX conversion with sample file: {sample_docx}")
+    logger.info(f"Sample DOCX exists: {sample_docx.exists()}")
+    logger.info(f"Sample DOCX size: {sample_docx.stat().st_size} bytes")
+    
+    # Create a mock UploadFile
+    class MockUploadFile(UploadFile):
+        async def read(self):
+            content = open(sample_docx, "rb").read()
+            logger.info(f"Read {len(content)} bytes from sample DOCX")
+            return content
+
+    upload_file = MockUploadFile(
+        filename="test.docx",
+        file=None,
+    )
+
+    # Test conversion
+    save_path = tmp_path / "test.docx"
+    logger.info(f"Converting DOCX to: {save_path}")
+    result = await converter.convert(upload_file, save_path)
+    
+    logger.info("Conversion result metadata:")
+    logger.info(f"  Original file: {result.get('metadata', {}).get('original_file')}")
+    logger.info(f"  MIME type: {result.get('metadata', {}).get('mime_type')}")
+    logger.info(f"  Content length: {len(result.get('content', ''))}")
+    logger.info(f"  Content preview: {result.get('content', '')[:200]}")
+    
+    assert isinstance(result, dict)
+    assert "content" in result
+    assert "metadata" in result
+    assert result["metadata"]["original_file"] == "test.docx"
+    assert result["metadata"]["mime_type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    assert "Test Document" in result["content"]
+
+@pytest.mark.asyncio
+async def test_convert_pptx(converter, sample_pptx, tmp_path):
+    """Test PPTX conversion."""
+    logger.info(f"Testing PPTX conversion with sample file: {sample_pptx}")
+    logger.info(f"Sample PPTX exists: {sample_pptx.exists()}")
+    logger.info(f"Sample PPTX size: {sample_pptx.stat().st_size} bytes")
+    
+    # Create a mock UploadFile
+    class MockUploadFile(UploadFile):
+        async def read(self):
+            content = open(sample_pptx, "rb").read()
+            logger.info(f"Read {len(content)} bytes from sample PPTX")
+            return content
+
+    upload_file = MockUploadFile(
+        filename="test.pptx",
+        file=None,
+    )
+
+    # Test conversion
+    save_path = tmp_path / "test.pptx"
+    logger.info(f"Converting PPTX to: {save_path}")
+    result = await converter.convert(upload_file, save_path)
+    
+    logger.info("Conversion result metadata:")
+    logger.info(f"  Original file: {result.get('metadata', {}).get('original_file')}")
+    logger.info(f"  MIME type: {result.get('metadata', {}).get('mime_type')}")
+    logger.info(f"  Content length: {len(result.get('content', ''))}")
+    logger.info(f"  Content preview: {result.get('content', '')[:200]}")
+    
+    assert isinstance(result, dict)
+    assert "content" in result
+    assert "metadata" in result
+    assert result["metadata"]["original_file"] == "test.pptx"
+    assert result["metadata"]["mime_type"] == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    assert "Test Presentation" in result["content"]
+
+@pytest.mark.asyncio
+async def test_convert_html(converter, sample_html, tmp_path):
+    """Test HTML conversion."""
+    logger.info(f"Testing HTML conversion with sample file: {sample_html}")
+    logger.info(f"Sample HTML exists: {sample_html.exists()}")
+    logger.info(f"Sample HTML size: {sample_html.stat().st_size} bytes")
+    
+    # Create a mock UploadFile
+    class MockUploadFile(UploadFile):
+        async def read(self):
+            content = open(sample_html, "rb").read()
+            logger.info(f"Read {len(content)} bytes from sample HTML")
+            return content
+
+    upload_file = MockUploadFile(
+        filename="test.html",
+        file=None,
+    )
+
+    # Test conversion
+    save_path = tmp_path / "test.html"
+    logger.info(f"Converting HTML to: {save_path}")
+    result = await converter.convert(upload_file, save_path)
+    
+    logger.info("Conversion result metadata:")
+    logger.info(f"  Original file: {result.get('metadata', {}).get('original_file')}")
+    logger.info(f"  MIME type: {result.get('metadata', {}).get('mime_type')}")
+    logger.info(f"  Content length: {len(result.get('content', ''))}")
+    logger.info(f"  Content preview: {result.get('content', '')[:200]}")
+    
+    assert isinstance(result, dict)
+    assert "content" in result
+    assert "metadata" in result
+    assert result["metadata"]["original_file"] == "test.html"
+    assert result["metadata"]["mime_type"] == "text/html"
+    assert "Test Document" in result["content"]
+
+@pytest.mark.asyncio
 async def test_convert_invalid_file(converter, tmp_path):
     """Test conversion with invalid file."""
     # Create a mock UploadFile with invalid content
