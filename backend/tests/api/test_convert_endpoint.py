@@ -57,6 +57,48 @@ def test_convert_large_file(test_client, tmp_path):
     
     assert response.status_code == 413  # Payload Too Large
 
+def test_convert_docx(test_client, sample_docx):
+    """Test DOCX conversion endpoint."""
+    with open(sample_docx, "rb") as f:
+        files = {"file": ("test.docx", f, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+        response = test_client.post("/api/v1/convert", files=files)
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert "content" in data
+    assert "metadata" in data
+    assert data["metadata"]["original_file"] == "test.docx"
+    assert data["metadata"]["mime_type"] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    assert "Test Document" in data["content"]
+
+def test_convert_pptx(test_client, sample_pptx):
+    """Test PPTX conversion endpoint."""
+    with open(sample_pptx, "rb") as f:
+        files = {"file": ("test.pptx", f, "application/vnd.openxmlformats-officedocument.presentationml.presentation")}
+        response = test_client.post("/api/v1/convert", files=files)
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert "content" in data
+    assert "metadata" in data
+    assert data["metadata"]["original_file"] == "test.pptx"
+    assert data["metadata"]["mime_type"] == "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    assert "Test Presentation" in data["content"]
+
+def test_convert_html(test_client, sample_html):
+    """Test HTML conversion endpoint."""
+    with open(sample_html, "rb") as f:
+        files = {"file": ("test.html", f, "text/html")}
+        response = test_client.post("/api/v1/convert", files=files)
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert "content" in data
+    assert "metadata" in data
+    assert data["metadata"]["original_file"] == "test.html"
+    assert data["metadata"]["mime_type"] == "text/html"
+    assert "Test Document" in data["content"]
+
 def test_convert_unsupported_type(test_client):
     """Test conversion with unsupported file type."""
     files = {"file": ("test.xyz", b"test content", "application/x-xyz")}
