@@ -7,9 +7,13 @@ from docling.datamodel.base_models import InputFormat
 from docling.document_converter import (
     DocumentConverter as DoclingConverter,
     ImageFormatOption,
-    PdfFormatOption
+    PdfFormatOption,
+    WordFormatOption,
+    HTMLFormatOption,
+    PowerpointFormatOption
 )
 from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
+from docling.pipeline.simple_pipeline import SimplePipeline
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 
 # Set up logging
@@ -28,13 +32,29 @@ def converter():
     pipeline_options.do_table_structure = True
     
     converter.converter = DoclingConverter(
-        allowed_formats=[InputFormat.IMAGE, InputFormat.PDF],
+        allowed_formats=[
+            InputFormat.IMAGE,
+            InputFormat.PDF,
+            InputFormat.DOCX,
+            InputFormat.PPTX,
+            InputFormat.HTML
+        ],
         format_options={
             InputFormat.IMAGE: ImageFormatOption(
                 pipeline_cls=StandardPdfPipeline,
                 pipeline_options=pipeline_options
             ),
             InputFormat.PDF: PdfFormatOption(
+                pipeline_options=pipeline_options
+            ),
+            InputFormat.DOCX: WordFormatOption(
+                pipeline_options=pipeline_options
+            ),
+            InputFormat.PPTX: PowerpointFormatOption(
+                pipeline_options=pipeline_options,
+                pipeline_cls=SimplePipeline
+            ),
+            InputFormat.HTML: HTMLFormatOption(
                 pipeline_options=pipeline_options
             ),
         },
