@@ -1,7 +1,14 @@
 # OpenHands Instructions for doc-to-markdown
 
 ## Project Overview
-This is a web application that converts various document formats (images, PDFs, DOC, DOCX, TXT) to Markdown format using FastAPI and DaisyUI.
+This is a web application that converts various document formats to Markdown format using FastAPI and DaisyUI.
+
+Supported formats:
+- PDF files (with OCR for scanned documents)
+- Images (JPEG, PNG, GIF, WebP with OCR)
+- Microsoft Word documents (DOCX)
+- HTML files (with table and list preservation)
+- Microsoft PowerPoint presentations (PPTX)
 
 ## Development Setup
 
@@ -54,12 +61,16 @@ doc-to-markdown/
 │   ├── public/                  # Static assets
 │   └── tests/                  # Frontend tests
 ├── backend/
-│   ├── src/                    # Source code
+│   ├── app/                    # Source code
 │   │   ├── api/               # API routes
-│   │   ├── services/          # Business logic
-│   │   ├── models/           # Data models
-│   │   └── utils/            # Backend utilities
+│   │   │   └── routes/       # Route handlers
+│   │   ├── core/             # Core business logic
+│   │   │   └── converter.py  # Document conversion
+│   │   └── schemas/          # Data models
 │   └── tests/                # Backend tests
+│       ├── core/             # Core tests
+│       ├── api/              # API tests
+│       └── fixtures/         # Test files
 ├── docs/                     # Documentation
 ├── scripts/                  # Development scripts
 └── .github/                  # GitHub workflows
@@ -81,8 +92,14 @@ cd frontend && npm test
 
 Backend tests:
 ```bash
-cd backend && pytest
+cd backend && pytest  # Run all tests
+cd backend && pytest tests/core  # Run core tests only
+cd backend && pytest tests/api   # Run API tests only
 ```
+
+The backend has two types of tests:
+- Core tests: Test the document conversion functionality directly
+- API tests: Test the REST API endpoints with file uploads
 
 ### Building for Production
 1. Build frontend:

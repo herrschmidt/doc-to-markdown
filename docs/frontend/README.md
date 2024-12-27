@@ -3,6 +3,22 @@
 ## Overview
 The frontend is a web application built with HTML, JavaScript, and DaisyUI that provides a user interface for converting various document formats to Markdown.
 
+Supported formats:
+- PDF files (with OCR for scanned documents)
+- Images (JPEG, PNG, GIF, WebP with OCR)
+- Microsoft Word documents (DOCX)
+- HTML files (with table and list preservation)
+- Microsoft PowerPoint presentations (PPTX)
+
+Features:
+- Drag and drop file upload
+- File type validation
+- File size validation (max 10MB)
+- Real-time conversion status
+- Markdown preview
+- Copy to clipboard
+- Download as .md file
+
 ## Project Structure
 ```
 frontend/
