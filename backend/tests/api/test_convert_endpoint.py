@@ -56,7 +56,7 @@ def test_convert_image(test_client, sample_image, monkeypatch):
         conv = DocumentConverter()
         conv.converter = converter
         return conv
-    monkeypatch.setattr("app.api.v1.convert.get_converter", get_patched_converter)
+    monkeypatch.setattr("app.api.routes.convert.DocumentConverter", get_patched_converter)
     
     # Test the endpoint
     with open(sample_image, "rb") as f:
