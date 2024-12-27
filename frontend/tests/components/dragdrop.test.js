@@ -124,4 +124,58 @@ describe('FileDropZone', () => {
         expect(container.innerHTML).toContain(customText.mainText);
         expect(container.innerHTML).toContain(customText.subText);
     });
+
+    test('integrates with the API correctly', async () => {
+        // Mock fetch
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                text: () => Promise.resolve('# Test Document\n\nThis is a test document.')
+            })
+        );
+
+        // Create a mock file
+        const mockFile = new File(['test content'], 'test.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+        // Initialize FileDropZone with a mock callback
+        const mockCallback = jest.fn();
+        const dropZone = new FileDropZone({
+            onFilesReceived: (files) => {
+                const formData = new FormData();
+                const file = Array.from(files)[0];
+                formData.append('file', file);
+
+                return fetch('http://localhost:8001/api/v1/convert', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(markdown => {
+                    mockCallback(markdown);
+                });
+            }
+        });
+
+        // Simulate file drop
+        const dropEvent = new Event('drop');
+        dropEvent.dataTransfer = { files: [mockFile] };
+        container.dispatchEvent(dropEvent);
+
+        // Wait for the API call to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Verify the API call
+        expect(global.fetch).toHaveBeenCalledWith('http://localhost:8001/api/v1/convert', {
+            method: 'POST',
+            body: expect.any(FormData)
+        });
+
+        // Verify the callback was called with the markdown
+        expect(mockCallback).toHaveBeenCalledWith('# Test Document\n\nThis is a test document.');
+    });
 });
