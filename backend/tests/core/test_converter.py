@@ -3,6 +3,14 @@ import logging
 from pathlib import Path
 from fastapi import HTTPException, UploadFile
 from app.core.converter import DocumentConverter
+from docling.datamodel.base_models import InputFormat
+from docling.document_converter import (
+    DocumentConverter as DoclingConverter,
+    ImageFormatOption,
+    PdfFormatOption
+)
+from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
+from docling.datamodel.pipeline_options import PdfPipelineOptions
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -11,7 +19,28 @@ logger = logging.getLogger(__name__)
 @pytest.fixture
 def converter():
     """Create a DocumentConverter instance."""
-    return DocumentConverter()
+    # Create a converter with default options
+    converter = DocumentConverter()
+    
+    # Override the pipeline options to use OCR
+    pipeline_options = PdfPipelineOptions()
+    pipeline_options.do_ocr = True
+    pipeline_options.do_table_structure = True
+    
+    converter.converter = DoclingConverter(
+        allowed_formats=[InputFormat.IMAGE, InputFormat.PDF],
+        format_options={
+            InputFormat.IMAGE: ImageFormatOption(
+                pipeline_cls=StandardPdfPipeline,
+                pipeline_options=pipeline_options
+            ),
+            InputFormat.PDF: PdfFormatOption(
+                pipeline_options=pipeline_options
+            ),
+        },
+    )
+    
+    return converter
 
 @pytest.mark.asyncio
 async def test_detect_file_type(converter, sample_pdf, sample_image):
