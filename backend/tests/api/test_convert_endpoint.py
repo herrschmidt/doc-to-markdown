@@ -1,6 +1,18 @@
 import pytest
 from pathlib import Path
 from fastapi import UploadFile
+from docling.datamodel.base_models import InputFormat
+from docling.document_converter import (
+    DocumentConverter as DoclingConverter,
+    ImageFormatOption,
+    PdfFormatOption,
+    WordFormatOption,
+    HTMLFormatOption,
+    PowerpointFormatOption
+)
+from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
+from docling.pipeline.simple_pipeline import SimplePipeline
+from docling.datamodel.pipeline_options import PdfPipelineOptions
 
 def test_health_check(test_client):
     """Test the health check endpoint."""
@@ -21,8 +33,32 @@ def test_convert_pdf(test_client, sample_pdf):
     assert data["metadata"]["original_file"] == "test.pdf"
     assert data["metadata"]["mime_type"] == "application/pdf"
 
-def test_convert_image(test_client, sample_image):
+def test_convert_image(test_client, sample_image, monkeypatch):
     """Test image conversion endpoint."""
+    # Override the converter's pipeline options
+    pipeline_options = PdfPipelineOptions()
+    pipeline_options.do_ocr = True
+    pipeline_options.do_table_structure = True
+    
+    converter = DoclingConverter(
+        allowed_formats=[InputFormat.IMAGE],
+        format_options={
+            InputFormat.IMAGE: ImageFormatOption(
+                pipeline_cls=StandardPdfPipeline,
+                pipeline_options=pipeline_options
+            ),
+        },
+    )
+    
+    # Patch the converter in the app
+    from app.core.converter import DocumentConverter
+    def get_patched_converter():
+        conv = DocumentConverter()
+        conv.converter = converter
+        return conv
+    monkeypatch.setattr("app.api.v1.convert.get_converter", get_patched_converter)
+    
+    # Test the endpoint
     with open(sample_image, "rb") as f:
         files = {"file": ("test.png", f, "image/png")}
         response = test_client.post("/api/v1/convert", files=files)
