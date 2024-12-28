@@ -34,9 +34,11 @@ jobs:
       - name: Wait for services to start
         run: |
           echo "Waiting for backend to be healthy..."
-          timeout 30s bash -c 'until curl -s http://localhost:8001/api/health; do sleep 1; done'
+          timeout 60s bash -c 'until curl -s -f http://localhost:8001/api/health; do echo "Waiting for backend..." && sleep 5; done'
+          echo "Backend is healthy!"
           echo "Waiting for frontend to be ready..."
-          timeout 30s bash -c 'until curl -s http://localhost:8000/index.html; do sleep 1; done'
+          timeout 60s bash -c 'until curl -s -f http://localhost:8000/index.html; do echo "Waiting for frontend..." && sleep 5; done'
+          echo "Frontend is ready!"
 
       - name: Test file conversion
         run: |
@@ -52,9 +54,11 @@ jobs:
       - name: Wait for services to start
         run: |
           echo "Waiting for backend to be healthy..."
-          timeout 30s bash -c 'until curl -s http://localhost:8001/api/health; do sleep 1; done'
+          timeout 60s bash -c 'until curl -s -f http://localhost:8001/api/health; do echo "Waiting for backend..." && sleep 5; done'
+          echo "Backend is healthy!"
           echo "Waiting for frontend to be ready..."
-          timeout 30s bash -c 'until curl -s http://localhost:8000/index.html; do sleep 1; done'
+          timeout 60s bash -c 'until curl -s -f http://localhost:8000/index.html; do echo "Waiting for frontend..." && sleep 5; done'
+          echo "Frontend is ready!"
 
       - name: Test file conversion (production)
         run: |

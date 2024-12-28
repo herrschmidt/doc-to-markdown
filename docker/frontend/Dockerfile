@@ -3,12 +3,6 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY frontend/package*.json ./
-
-# Install dependencies
-RUN npm ci
-
 # Copy frontend code
 COPY frontend/src ./src
 
