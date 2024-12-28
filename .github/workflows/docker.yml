@@ -22,26 +22,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install curl
+        run: sudo apt-get update && sudo apt-get install -y curl
+
       - name: Build development containers
-        run: |
-          cd docker
-          docker compose -f docker-compose.dev.yml build
+        run: docker compose -f docker/docker-compose.dev.yml build
 
       - name: Start development containers
-        run: |
-          cd docker
-          docker compose -f docker-compose.dev.yml up -d
+        run: docker compose -f docker/docker-compose.dev.yml up -d
 
       - name: Wait for services to start
-        run: sleep 10
-
-      - name: Check frontend health
         run: |
-          curl -f http://localhost:8000/index.html || exit 1
-
-      - name: Check backend health
-        run: |
-          curl -f http://localhost:8001/api/health || exit 1
+          echo "Waiting for backend to be healthy..."
+          timeout 60s bash -c 'until curl -s -f http://localhost:8001/api/health; do echo "Waiting for backend..." && sleep 5; done'
+          echo "Backend is healthy!"
+          echo "Waiting for frontend to be ready..."
+          timeout 60s bash -c 'until curl -s -f http://localhost:8000/index.html; do echo "Waiting for frontend..." && sleep 5; done'
+          echo "Frontend is ready!"
 
       - name: Test file conversion
         run: |
@@ -49,28 +46,27 @@ jobs:
           curl -X POST -F "file=@sample.docx" http://localhost:8001/api/v1/convert
 
       - name: Build production containers
-        run: |
-          cd docker
-          docker compose build
+        run: docker compose -f docker/docker-compose.yml build
 
       - name: Start production containers
-        run: |
-          cd docker
-          docker compose up -d
+        run: docker compose -f docker/docker-compose.yml up -d
 
       - name: Wait for services to start
-        run: sleep 10
-
-      - name: Check frontend health (production)
         run: |
-          curl -f http://localhost:8000/index.html || exit 1
+          echo "Waiting for backend to be healthy..."
+          timeout 60s bash -c 'until curl -s -f http://localhost:8001/api/health; do echo "Waiting for backend..." && sleep 5; done'
+          echo "Backend is healthy!"
+          echo "Waiting for frontend to be ready..."
+          timeout 60s bash -c 'until curl -s -f http://localhost:8000/index.html; do echo "Waiting for frontend..." && sleep 5; done'
+          echo "Frontend is ready!"
 
-      - name: Check backend health (production)
+      - name: Test file conversion (production)
         run: |
-          curl -f http://localhost:8001/api/health || exit 1
+          cd backend/tests/fixtures
+          curl -X POST -F "file=@sample.docx" http://localhost:8001/api/v1/convert
 
       - name: Stop containers
+        if: always()
         run: |
-          cd docker
-          docker compose down
-          docker compose -f docker-compose.dev.yml down
+          docker compose -f docker/docker-compose.yml down
+          docker compose -f docker/docker-compose.dev.yml down
