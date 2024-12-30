@@ -28,6 +28,32 @@ A web application that converts various document formats to Markdown using FastA
 
 ## Quick Start
 
+### Using Docker (Recommended)
+
+1. Clone the repository:
+```bash
+git clone https://github.com/herrschmidt/doc-to-markdown.git
+cd doc-to-markdown
+```
+
+2. Start the containers:
+```bash
+# Development mode with hot reload
+docker compose -f docker/docker-compose.dev.yml up -d
+
+# OR Production mode
+docker compose -f docker/docker-compose.yml up -d
+```
+
+3. Open http://localhost:8000/index.html in your browser
+
+4. Stop the containers:
+```bash
+docker compose -f docker/docker-compose.yml down
+```
+
+### Manual Setup
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/herrschmidt/doc-to-markdown.git
@@ -70,6 +96,15 @@ doc-to-markdown/
 │   │   ├── core/        # Business logic
 │   │   └── schemas/     # Data models
 │   └── tests/           # Backend tests
+├── docker/               # Docker configuration
+│   ├── frontend/        # Frontend container
+│   │   ├── Dockerfile
+│   │   └── entrypoint.sh
+│   ├── backend/         # Backend container
+│   │   ├── Dockerfile
+│   │   └── entrypoint.sh
+│   ├── docker-compose.yml      # Production config
+│   └── docker-compose.dev.yml  # Development config
 ├── docs/                 # Documentation
 │   ├── frontend/        # Frontend docs
 │   └── backend/         # Backend docs
@@ -79,14 +114,33 @@ doc-to-markdown/
 
 ## Development
 
-### Frontend Development
+### Using Docker (Recommended)
+
+Development with hot reload:
+```bash
+# Start containers
+docker compose -f docker/docker-compose.dev.yml up -d
+
+# View logs
+docker compose -f docker/docker-compose.dev.yml logs -f
+
+# Rebuild containers
+docker compose -f docker/docker-compose.dev.yml up --build -d
+
+# Stop containers
+docker compose -f docker/docker-compose.dev.yml down
+```
+
+### Manual Setup
+
+Frontend Development:
 ```bash
 cd frontend
 npm install
 cd src && python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
-### Backend Development
+Backend Development:
 ```bash
 cd backend
 pip install -r requirements.txt
