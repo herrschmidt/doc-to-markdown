@@ -68,6 +68,7 @@ cd doc-to-markdown
 3. Start the backend server:
 ```bash
 cd backend
+source venv/bin/activate  # Activate the Python virtual environment
 uvicorn app.main:app --reload --port 8001 --host 0.0.0.0
 ```
 
@@ -143,6 +144,7 @@ cd src && python3 -m http.server 8000 --bind 0.0.0.0
 Backend Development:
 ```bash
 cd backend
+source venv/bin/activate  # Activate the Python virtual environment
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8001 --host 0.0.0.0
 ```

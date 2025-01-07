@@ -30,4 +30,8 @@ mkdir -p /tmp/doc-to-markdown
 
 echo "Backend setup complete!"
 echo "To start the development server:"
-echo "cd backend && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
+echo "cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
+echo "Or step by step:"
+echo "1. cd backend"
+echo "2. source venv/bin/activate"
+echo "3. uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
