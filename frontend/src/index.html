@@ -6,6 +6,21 @@
     <title>Document to Markdown Converter</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.3/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .markdown-content {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .markdown-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
+        .markdown-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
+        .markdown-content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
+        .markdown-content p { margin: 1em 0; }
+        .markdown-content ul, .markdown-content ol { padding-left: 2em; margin: 1em 0; }
+        .markdown-content li { margin: 0.5em 0; }
+        .markdown-content code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 3px; }
+        .markdown-content pre code { display: block; padding: 1em; overflow-x: auto; }
+        .markdown-content blockquote { border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666; }
+    </style>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
     <div class="container mx-auto">
@@ -30,7 +45,15 @@
                     
                     <!-- Markdown Output -->
                     <div class="bg-base-200 rounded-lg p-4">
-                        <pre id="markdownOutput" class="whitespace-pre-wrap break-words"></pre>
+                        <div id="markdownOutput" class="markdown-content"></div>
+                        <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden"></pre>
+                    </div>
+
+                    <!-- View Toggle Button -->
+                    <div class="card-actions justify-start mt-4">
+                        <button id="toggleViewBtn" class="btn btn-secondary">
+                            Show Raw Markdown
+                        </button>
                     </div>
 
                     <!-- Download Button -->
@@ -53,7 +76,23 @@
         const loadingIndicator = document.getElementById('loadingIndicator');
         const resultSection = document.getElementById('resultSection');
         const markdownOutput = document.getElementById('markdownOutput');
+        const rawMarkdown = document.getElementById('rawMarkdown');
+        const toggleViewBtn = document.getElementById('toggleViewBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+
+        // Toggle between rendered and raw markdown
+        toggleViewBtn.addEventListener('click', () => {
+            const isShowingRaw = rawMarkdown.classList.contains('hidden');
+            if (isShowingRaw) {
+                rawMarkdown.classList.remove('hidden');
+                markdownOutput.classList.add('hidden');
+                toggleViewBtn.textContent = 'Show Rendered Markdown';
+            } else {
+                rawMarkdown.classList.add('hidden');
+                markdownOutput.classList.remove('hidden');
+                toggleViewBtn.textContent = 'Show Raw Markdown';
+            }
+        });
 
         // Initialize the drag and drop zone
         const dropZone = new FileDropZone({
@@ -82,7 +121,12 @@
                     return response.json();
                 })
                 .then(data => {
-                    markdownOutput.textContent = data.content;
+                    // Store raw markdown
+                    rawMarkdown.textContent = data.content;
+                    
+                    // Render markdown
+                    markdownOutput.innerHTML = marked.parse(data.content);
+                    
                     loadingIndicator.classList.add('hidden');
                     resultSection.classList.remove('hidden');
                 })
@@ -100,7 +144,7 @@
 
         // Handle download
         downloadBtn.addEventListener('click', () => {
-            const markdown = markdownOutput.textContent;
+            const markdown = rawMarkdown.textContent;
             const blob = new Blob([markdown], { type: 'text/markdown' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
