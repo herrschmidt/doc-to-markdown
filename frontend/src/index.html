@@ -79,10 +79,10 @@
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.text();
+                    return response.json();
                 })
-                .then(markdown => {
-                    markdownOutput.textContent = markdown;
+                .then(data => {
+                    markdownOutput.textContent = data.content;
                     loadingIndicator.classList.add('hidden');
                     resultSection.classList.remove('hidden');
                 })
