@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         .markdown-content {
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
         .markdown-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
         .markdown-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
@@ -20,6 +20,29 @@
         .markdown-content code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 3px; }
         .markdown-content pre code { display: block; padding: 1em; overflow-x: auto; }
         .markdown-content blockquote { border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666; }
+        
+        .result-container {
+            position: relative;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .copy-button:hover {
+            opacity: 1;
+        }
+        
+        .copy-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
@@ -44,9 +67,14 @@
                     <div class="divider">Result</div>
                     
                     <!-- Markdown Output -->
-                    <div class="bg-base-200 rounded-lg p-4">
+                    <div class="result-container bg-base-200 rounded-lg p-4">
+                        <button id="copyButton" class="copy-button btn btn-ghost btn-sm" title="Copy to clipboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
                         <div id="markdownOutput" class="markdown-content"></div>
-                        <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden"></pre>
+                        <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono"></pre>
                     </div>
 
                     <!-- Button Row -->
@@ -78,6 +106,7 @@
         const rawMarkdown = document.getElementById('rawMarkdown');
         const toggleViewBtn = document.getElementById('toggleViewBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const copyButton = document.getElementById('copyButton');
 
         // Toggle between rendered and raw markdown
         toggleViewBtn.addEventListener('click', () => {
@@ -140,6 +169,24 @@
 
         // Create the initial drop zone HTML
         FileDropZone.createDropZone('dropZone');
+
+        // Handle copy button
+        copyButton.addEventListener('click', async () => {
+            const textToCopy = rawMarkdown.textContent;
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                copyButton.classList.add('btn-success');
+                setTimeout(() => {
+                    copyButton.classList.remove('btn-success');
+                }, 1000);
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+                copyButton.classList.add('btn-error');
+                setTimeout(() => {
+                    copyButton.classList.remove('btn-error');
+                }, 1000);
+            }
+        });
 
         // Handle download
         downloadBtn.addEventListener('click', () => {
