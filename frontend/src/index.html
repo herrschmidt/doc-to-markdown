@@ -19,9 +19,9 @@
         }
     </script>
     <!-- Load dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-    <script src="./components/markdown-display/markdown-display.js" defer></script>
-    <script src="./components/dragdrop/dragdrop.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="./components/markdown-display/markdown-display.js"></script>
+    <script src="./components/dragdrop/dragdrop.js"></script>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
     <div class="container mx-auto lg:px-[10%]">
@@ -80,23 +80,9 @@
 
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
-    <script defer>
-        // Initialize application after scripts are loaded
-        function initApp() {
-            // Check if required components are available
-            if (typeof FileDropZone === 'undefined') {
-                console.error('FileDropZone component not loaded');
-                return;
-            }
-            if (typeof MarkdownDisplay === 'undefined') {
-                console.error('MarkdownDisplay component not loaded');
-                return;
-            }
-            if (typeof marked === 'undefined') {
-                console.error('marked library not loaded');
-                return;
-            }
-
+    <script>
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', () => {
             const loadingIndicator = document.getElementById('loadingIndicator');
             const resultSection = document.getElementById('resultSection');
             let markdownDisplay;
@@ -175,19 +161,7 @@
             } catch (err) {
                 showError(`Failed to initialize drag and drop: ${err.message}`);
             }
-        }
-
-        // Check if all dependencies are loaded
-        function checkDependencies() {
-            if (typeof marked === 'undefined' || typeof FileDropZone === 'undefined' || typeof MarkdownDisplay === 'undefined') {
-                setTimeout(checkDependencies, 50);
-            } else {
-                initApp();
-            }
-        }
-
-        // Start checking dependencies
-        checkDependencies();
+        });
     </script>
 </body>
 </html>
