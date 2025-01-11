@@ -34,11 +34,16 @@
         .markdown-content blockquote { border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666; }
         
         /* Table styles */
+        .markdown-content {
+            overflow-x: auto;
+            max-width: 100%;
+        }
         .markdown-content table {
             border-collapse: collapse;
-            width: 100%;
             margin: 1em 0;
             font-size: 0.9em;
+            min-width: 100%;
+            table-layout: auto;
         }
         .markdown-content table th {
             background-color: #f0f0f0;
@@ -118,8 +123,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
                             </button>
-                            <div id="markdownOutput" class="markdown-content"></div>
-                            <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono"></pre>
+                            <div class="overflow-x-auto">
+                                <div id="markdownOutput" class="markdown-content"></div>
+                            </div>
+                            <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono overflow-x-auto"></pre>
                         </div>
 
                         <!-- Button Row -->
