@@ -190,7 +190,5 @@ class MarkdownDisplay {
     }
 }
 
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MarkdownDisplay;
-}
+// Make MarkdownDisplay available globally
+window.MarkdownDisplay = MarkdownDisplay;
