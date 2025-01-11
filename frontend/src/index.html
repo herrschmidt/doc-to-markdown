@@ -171,6 +171,7 @@
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <script src="./components/dragdrop/dragdrop.js"></script>
     <script>
+        // Get DOM elements
         const loadingIndicator = document.getElementById('loadingIndicator');
         const resultSection = document.getElementById('resultSection');
         const markdownOutput = document.getElementById('markdownOutput');
@@ -178,22 +179,43 @@
         const toggleViewBtn = document.getElementById('toggleViewBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const copyButton = document.getElementById('copyButton');
+        const resultContainer = document.getElementById('resultContainer');
 
-        // Toggle between rendered and raw markdown
-        toggleViewBtn.addEventListener('click', () => {
-            const isShowingRaw = rawMarkdown.classList.contains('hidden');
-            if (isShowingRaw) {
-                rawMarkdown.classList.remove('hidden');
-                markdownOutput.classList.add('hidden');
-                toggleViewBtn.textContent = 'Show Rendered Markdown';
-            } else {
-                rawMarkdown.classList.add('hidden');
-                markdownOutput.classList.remove('hidden');
-                toggleViewBtn.textContent = 'Show Raw Markdown';
-            }
-        });
+        // Add middle mouse button scrolling
+        function addMiddleMouseScrolling(element) {
+            if (!element) return;
+            
+            let isScrolling = false;
+            let startX;
+            let scrollLeft;
 
-        // Initialize the drag and drop zone
+            element.addEventListener('mousedown', (e) => {
+                // Middle mouse button (button 1)
+                if (e.button === 1) {
+                    isScrolling = true;
+                    startX = e.pageX - element.offsetLeft;
+                    scrollLeft = element.scrollLeft;
+                    e.preventDefault();
+                }
+            });
+
+            element.addEventListener('mousemove', (e) => {
+                if (!isScrolling) return;
+                const x = e.pageX - element.offsetLeft;
+                const walk = (x - startX) * 2;
+                element.scrollLeft = scrollLeft - walk;
+            });
+
+            element.addEventListener('mouseup', () => {
+                isScrolling = false;
+            });
+
+            element.addEventListener('mouseleave', () => {
+                isScrolling = false;
+            });
+        }
+
+        // Initialize drag and drop zone
         const dropZone = new FileDropZone({
             containerId: 'dropZone',
             inputId: 'fileInput',
@@ -241,6 +263,24 @@
         // Create the initial drop zone HTML
         FileDropZone.createDropZone('dropZone');
 
+        // Toggle between rendered and raw markdown
+        toggleViewBtn.addEventListener('click', () => {
+            const isShowingRaw = rawMarkdown.classList.contains('hidden');
+            if (isShowingRaw) {
+                rawMarkdown.classList.remove('hidden');
+                markdownOutput.classList.add('hidden');
+                toggleViewBtn.textContent = 'Show Rendered Markdown';
+            } else {
+                rawMarkdown.classList.add('hidden');
+                markdownOutput.classList.remove('hidden');
+                toggleViewBtn.textContent = 'Show Raw Markdown';
+            }
+        });
+
+        // Add middle mouse scrolling to both containers
+        addMiddleMouseScrolling(resultContainer);
+        addMiddleMouseScrolling(rawMarkdown);
+
         // Handle copy button
         copyButton.addEventListener('click', async () => {
             const textToCopy = rawMarkdown.textContent;
@@ -258,44 +298,6 @@
                 }, 1000);
             }
         });
-
-        // Add middle mouse button scrolling
-        function addMiddleMouseScrolling(element) {
-            let isScrolling = false;
-            let startX;
-            let scrollLeft;
-
-            element.addEventListener('mousedown', (e) => {
-                // Middle mouse button (button 1)
-                if (e.button === 1) {
-                    isScrolling = true;
-                    startX = e.pageX - element.offsetLeft;
-                    scrollLeft = element.scrollLeft;
-                    e.preventDefault();
-                }
-            });
-
-            element.addEventListener('mousemove', (e) => {
-                if (!isScrolling) return;
-                const x = e.pageX - element.offsetLeft;
-                const walk = (x - startX) * 2;
-                element.scrollLeft = scrollLeft - walk;
-            });
-
-            element.addEventListener('mouseup', () => {
-                isScrolling = false;
-            });
-
-            element.addEventListener('mouseleave', () => {
-                isScrolling = false;
-            });
-        }
-
-        // Add middle mouse scrolling to both containers
-        const resultContainer = document.getElementById('resultContainer');
-        const rawMarkdown = document.getElementById('rawMarkdown');
-        addMiddleMouseScrolling(resultContainer);
-        addMiddleMouseScrolling(rawMarkdown);
 
         // Handle download
         downloadBtn.addEventListener('click', () => {
