@@ -123,9 +123,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                 </svg>
                             </button>
-                            <div class="overflow-x-auto cursor-grab active:cursor-grabbing" id="resultContainer">
-                                <div id="markdownOutput" class="markdown-content"></div>
-                            </div>
+                            <div id="markdownOutput" class="markdown-content overflow-x-auto cursor-grab active:cursor-grabbing"></div>
                             <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono overflow-x-auto cursor-grab active:cursor-grabbing"></pre>
                         </div>
 
@@ -179,8 +177,6 @@
         const toggleViewBtn = document.getElementById('toggleViewBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const copyButton = document.getElementById('copyButton');
-        const resultContainer = document.getElementById('resultContainer');
-
         // Add middle mouse button scrolling
         function addMiddleMouseScrolling(element) {
             if (!element) return;
@@ -206,13 +202,16 @@
                 element.scrollLeft = scrollLeft - walk;
             });
 
-            element.addEventListener('mouseup', () => {
-                isScrolling = false;
-            });
+            const stopScrolling = () => {
+                if (isScrolling) {
+                    isScrolling = false;
+                }
+            };
 
-            element.addEventListener('mouseleave', () => {
-                isScrolling = false;
-            });
+            element.addEventListener('mouseup', stopScrolling);
+            element.addEventListener('mouseleave', stopScrolling);
+            // Also stop scrolling when mouse button is released anywhere in the document
+            document.addEventListener('mouseup', stopScrolling);
         }
 
         // Initialize drag and drop zone
@@ -278,7 +277,7 @@
         });
 
         // Add middle mouse scrolling to both containers
-        addMiddleMouseScrolling(resultContainer);
+        addMiddleMouseScrolling(markdownOutput);
         addMiddleMouseScrolling(rawMarkdown);
 
         // Handle copy button
