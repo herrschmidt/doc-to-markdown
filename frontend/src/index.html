@@ -85,7 +85,7 @@
 <body class="min-h-screen bg-base-200 p-4">
     <div class="container mx-auto lg:px-[10%]">
         <div class="card bg-base-100 shadow-xl">
-            <div class="card-body">
+            <div class="card-body flex flex-col min-h-[600px]">
                 <div class="mb-8">
                     <div class="flex items-baseline gap-4 mb-4">
                         <h2 class="card-title text-3xl font-magic text-primary">Magic Markdown</h2>
@@ -97,61 +97,67 @@
                     </div>
                 </div>
                 
-                <!-- Drag and Drop Zone -->
-                <div id="dropZone" data-testid="dropZone"></div>
+                <!-- Main Content Area -->
+                <div class="flex-1">
+                    <!-- Drag and Drop Zone -->
+                    <div id="dropZone" data-testid="dropZone"></div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="hidden">
+                        <span class="loading loading-spinner loading-lg"></span>
+                    </div>
+
+                    <!-- Result Section -->
+                    <div id="resultSection" class="hidden mt-4">
+                        <div class="divider">Result</div>
+                        
+                        <!-- Markdown Output -->
+                        <div class="result-container bg-base-200 rounded-lg p-4">
+                            <button id="copyButton" class="copy-button btn btn-ghost btn-sm" title="Copy to clipboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                            <div id="markdownOutput" class="markdown-content"></div>
+                            <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono"></pre>
+                        </div>
+
+                        <!-- Button Row -->
+                        <div class="card-actions justify-between mt-4">
+                            <!-- View Toggle Button -->
+                            <button id="toggleViewBtn" class="btn btn-primary">
+                                Show Raw Markdown
+                            </button>
+
+                            <!-- Download Button -->
+                            <button id="downloadBtn" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Download Markdown
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Footer -->
-                <div class="flex justify-between items-center mt-8 text-base-content/60 text-sm">
-                    <div class="flex items-center gap-1">
-                        Backend: <a href="https://github.com/DS4SD/docling" class="link link-primary" target="_blank">docling</a>
+                <div class="mt-auto">
+                    <div class="divider mt-12"></div>
+                    <div class="flex justify-between items-center text-base-content/60 text-sm pb-4">
+                        <div class="flex items-center gap-1">
+                            Backend: <a href="https://github.com/DS4SD/docling" class="link link-primary" target="_blank">docling</a>
+                        </div>
+                        <a href="https://github.com/herrschmidt/magic-markdown" class="flex items-center gap-2 hover:text-primary transition-colors" target="_blank">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                            </svg>
+                            <span>GitHub</span>
+                        </a>
                     </div>
-                    <a href="https://github.com/herrschmidt/magic-markdown" class="flex items-center gap-2 hover:text-primary transition-colors" target="_blank">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-                        </svg>
-                        <span>GitHub</span>
-                    </a>
                 </div>
 
                 <!-- File Input (Hidden) -->
                 <input type="file" id="fileInput" data-testid="fileInput" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt" multiple>
-
-                <!-- Loading Indicator -->
-                <div id="loadingIndicator" class="hidden">
-                    <span class="loading loading-spinner loading-lg"></span>
-                </div>
-
-                <!-- Result Section -->
-                <div id="resultSection" class="hidden mt-4">
-                    <div class="divider">Result</div>
-                    
-                    <!-- Markdown Output -->
-                    <div class="result-container bg-base-200 rounded-lg p-4">
-                        <button id="copyButton" class="copy-button btn btn-ghost btn-sm" title="Copy to clipboard">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                        </button>
-                        <div id="markdownOutput" class="markdown-content"></div>
-                        <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono"></pre>
-                    </div>
-
-                    <!-- Button Row -->
-                    <div class="card-actions justify-between mt-4">
-                        <!-- View Toggle Button -->
-                        <button id="toggleViewBtn" class="btn btn-primary">
-                            Show Raw Markdown
-                        </button>
-
-                        <!-- Download Button -->
-                        <button id="downloadBtn" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            Download Markdown
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
