@@ -19,73 +19,7 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        .markdown-content {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        }
-        .markdown-content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
-        .markdown-content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
-        .markdown-content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
-        .markdown-content p { margin: 1em 0; }
-        .markdown-content ul, .markdown-content ol { padding-left: 2em; margin: 1em 0; }
-        .markdown-content li { margin: 0.5em 0; }
-        .markdown-content code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 3px; }
-        .markdown-content pre code { display: block; padding: 1em; overflow-x: auto; }
-        .markdown-content blockquote { border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666; }
-        
-        /* Table styles */
-        .markdown-content {
-            overflow-x: auto;
-            max-width: 100%;
-        }
-        .markdown-content table {
-            border-collapse: collapse;
-            margin: 1em 0;
-            font-size: 0.9em;
-            min-width: 100%;
-            table-layout: auto;
-        }
-        .markdown-content table th {
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            padding: 0.5em 1em;
-            text-align: left;
-            font-weight: bold;
-        }
-        .markdown-content table td {
-            border: 1px solid #ddd;
-            padding: 0.5em 1em;
-        }
-        .markdown-content table tr:nth-child(even) {
-            background-color: #f8f8f8;
-        }
-        .markdown-content table tr:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .result-container {
-            position: relative;
-        }
-        
-        .copy-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-        
-        .copy-button:hover {
-            opacity: 1;
-        }
-        
-        .copy-button svg {
-            width: 1.25rem;
-            height: 1.25rem;
-        }
-    </style>
+    <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
 </head>
 <body class="min-h-screen bg-base-200 p-4">
     <div class="container mx-auto lg:px-[10%]">
@@ -115,32 +49,8 @@
                     <!-- Result Section -->
                     <div id="resultSection" class="hidden mt-4">
                         <div class="divider">Result</div>
-                        
-                        <!-- Markdown Output -->
-                        <div class="result-container bg-base-200 rounded-lg p-4">
-                            <button id="copyButton" class="copy-button btn btn-ghost btn-sm" title="Copy to clipboard">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
-                            </button>
-                            <div id="markdownOutput" class="markdown-content overflow-x-auto cursor-grab active:cursor-grabbing"></div>
-                            <pre id="rawMarkdown" class="whitespace-pre-wrap break-words mt-4 hidden font-mono overflow-x-auto cursor-grab active:cursor-grabbing"></pre>
-                        </div>
-
-                        <!-- Button Row -->
-                        <div class="card-actions justify-between mt-4">
-                            <!-- View Toggle Button -->
-                            <button id="toggleViewBtn" class="btn btn-primary">
-                                Show Raw Markdown
-                            </button>
-
-                            <!-- Download Button -->
-                            <button id="downloadBtn" class="btn btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Download Markdown
-                            </button>
+                        <div class="bg-base-200 rounded-lg p-4">
+                            <div id="markdownDisplay"></div>
                         </div>
                     </div>
                 </div>
@@ -168,51 +78,11 @@
 
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <script src="./components/dragdrop/dragdrop.js"></script>
+    <script src="./components/markdown-display/markdown-display.js"></script>
     <script>
-        // Get DOM elements
         const loadingIndicator = document.getElementById('loadingIndicator');
         const resultSection = document.getElementById('resultSection');
-        const markdownOutput = document.getElementById('markdownOutput');
-        const rawMarkdown = document.getElementById('rawMarkdown');
-        const toggleViewBtn = document.getElementById('toggleViewBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const copyButton = document.getElementById('copyButton');
-        // Add middle mouse button scrolling
-        function addMiddleMouseScrolling(element) {
-            if (!element) return;
-            
-            let isScrolling = false;
-            let startX;
-            let scrollLeft;
-
-            element.addEventListener('mousedown', (e) => {
-                // Middle mouse button (button 1)
-                if (e.button === 1) {
-                    isScrolling = true;
-                    startX = e.pageX - element.offsetLeft;
-                    scrollLeft = element.scrollLeft;
-                    e.preventDefault();
-                }
-            });
-
-            element.addEventListener('mousemove', (e) => {
-                if (!isScrolling) return;
-                const x = e.pageX - element.offsetLeft;
-                const walk = (x - startX) * 2;
-                element.scrollLeft = scrollLeft - walk;
-            });
-
-            const stopScrolling = () => {
-                if (isScrolling) {
-                    isScrolling = false;
-                }
-            };
-
-            element.addEventListener('mouseup', stopScrolling);
-            element.addEventListener('mouseleave', stopScrolling);
-            // Also stop scrolling when mouse button is released anywhere in the document
-            document.addEventListener('mouseup', stopScrolling);
-        }
+        let markdownDisplay;
 
         // Initialize drag and drop zone
         const dropZone = new FileDropZone({
@@ -241,18 +111,28 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Store raw markdown
-                    rawMarkdown.textContent = data.content;
+                    // Initialize markdown display if not already done
+                    if (!markdownDisplay) {
+                        markdownDisplay = new MarkdownDisplay({
+                            containerId: 'markdownDisplay',
+                            downloadFileName: file.name.replace(/\.[^/.]+$/, '') + '.md'
+                        });
+                    }
                     
-                    // Render markdown
-                    markdownOutput.innerHTML = marked.parse(data.content);
+                    // Set content
+                    markdownDisplay.setContent(data.content);
                     
                     loadingIndicator.classList.add('hidden');
                     resultSection.classList.remove('hidden');
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    markdownOutput.textContent = `Error: ${error.message}`;
+                    if (!markdownDisplay) {
+                        markdownDisplay = new MarkdownDisplay({
+                            containerId: 'markdownDisplay'
+                        });
+                    }
+                    markdownDisplay.setContent(`Error: ${error.message}`);
                     loadingIndicator.classList.add('hidden');
                     resultSection.classList.remove('hidden');
                 });
@@ -261,56 +141,6 @@
 
         // Create the initial drop zone HTML
         FileDropZone.createDropZone('dropZone');
-
-        // Toggle between rendered and raw markdown
-        toggleViewBtn.addEventListener('click', () => {
-            const isShowingRaw = rawMarkdown.classList.contains('hidden');
-            if (isShowingRaw) {
-                rawMarkdown.classList.remove('hidden');
-                markdownOutput.classList.add('hidden');
-                toggleViewBtn.textContent = 'Show Rendered Markdown';
-            } else {
-                rawMarkdown.classList.add('hidden');
-                markdownOutput.classList.remove('hidden');
-                toggleViewBtn.textContent = 'Show Raw Markdown';
-            }
-        });
-
-        // Add middle mouse scrolling to both containers
-        addMiddleMouseScrolling(markdownOutput);
-        addMiddleMouseScrolling(rawMarkdown);
-
-        // Handle copy button
-        copyButton.addEventListener('click', async () => {
-            const textToCopy = rawMarkdown.textContent;
-            try {
-                await navigator.clipboard.writeText(textToCopy);
-                copyButton.classList.add('btn-success');
-                setTimeout(() => {
-                    copyButton.classList.remove('btn-success');
-                }, 1000);
-            } catch (err) {
-                console.error('Failed to copy text:', err);
-                copyButton.classList.add('btn-error');
-                setTimeout(() => {
-                    copyButton.classList.remove('btn-error');
-                }, 1000);
-            }
-        });
-
-        // Handle download
-        downloadBtn.addEventListener('click', () => {
-            const markdown = rawMarkdown.textContent;
-            const blob = new Blob([markdown], { type: 'text/markdown' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'converted_document.md';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        });
     </script>
 </body>
 </html>
