@@ -1,0 +1,102 @@
+/* Container */
+.markdown-display {
+    position: relative;
+    width: 100%;
+}
+
+/* Copy Button */
+.markdown-display__copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.markdown-display__copy-button:hover {
+    opacity: 1;
+}
+
+.markdown-display__copy-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Content Area */
+.markdown-display__content {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Rendered Markdown */
+.markdown-display__rendered {
+    overflow-x: auto;
+    cursor: grab;
+}
+
+.markdown-display__rendered:active {
+    cursor: grabbing;
+}
+
+/* Raw Markdown */
+.markdown-display__raw {
+    overflow-x: auto;
+    cursor: grab;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 1rem;
+}
+
+.markdown-display__raw:active {
+    cursor: grabbing;
+}
+
+/* Controls */
+.markdown-display__controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+/* Markdown Styles */
+.markdown-display__content h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
+.markdown-display__content h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
+.markdown-display__content h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
+.markdown-display__content p { margin: 1em 0; }
+.markdown-display__content ul, 
+.markdown-display__content ol { padding-left: 2em; margin: 1em 0; }
+.markdown-display__content li { margin: 0.5em 0; }
+.markdown-display__content code { background: #f0f0f0; padding: 0.2em 0.4em; border-radius: 3px; }
+.markdown-display__content pre code { display: block; padding: 1em; overflow-x: auto; }
+.markdown-display__content blockquote { border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666; }
+
+/* Table Styles */
+.markdown-display__content table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9em;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+.markdown-display__content table th {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 0.5em 1em;
+    text-align: left;
+    font-weight: bold;
+}
+
+.markdown-display__content table td {
+    border: 1px solid #ddd;
+    padding: 0.5em 1em;
+}
+
+.markdown-display__content table tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+
+.markdown-display__content table tr:hover {
+    background-color: #f0f0f0;
+}
