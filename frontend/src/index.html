@@ -79,68 +79,102 @@
     <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
     <script src="./components/dragdrop/dragdrop.js"></script>
     <script src="./components/markdown-display/markdown-display.js"></script>
-    <script defer>
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const resultSection = document.getElementById('resultSection');
-        let markdownDisplay;
+    <script>
+        // Wait for all scripts to load
+        window.addEventListener('load', () => {
+            // Check if required components are available
+            if (typeof FileDropZone === 'undefined') {
+                console.error('FileDropZone component not loaded');
+                return;
+            }
+            if (typeof MarkdownDisplay === 'undefined') {
+                console.error('MarkdownDisplay component not loaded');
+                return;
+            }
+            if (typeof marked === 'undefined') {
+                console.error('marked library not loaded');
+                return;
+            }
 
-        // Initialize drag and drop zone
-        const dropZone = new FileDropZone({
-            containerId: 'dropZone',
-            inputId: 'fileInput',
-            accept: 'image/*,.pdf,.doc,.docx,.txt',
-            multiple: true,
-            onFilesReceived: (files) => {
-                loadingIndicator.classList.remove('hidden');
-                resultSection.classList.add('hidden');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultSection = document.getElementById('resultSection');
+            let markdownDisplay;
 
-                // Create FormData and append the first file
-                const formData = new FormData();
-                const file = Array.from(files)[0];
-                formData.append('file', file);
-
-                // Call the real API
-                fetch('http://localhost:8001/api/v1/convert', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Initialize markdown display if not already done
-                    if (!markdownDisplay) {
-                        markdownDisplay = new MarkdownDisplay({
-                            containerId: 'markdownDisplay',
-                            downloadFileName: file.name.replace(/\.[^/.]+$/, '') + '.md'
-                        });
-                    }
-                    
-                    // Set content
-                    markdownDisplay.setContent(data.content);
-                    
-                    loadingIndicator.classList.add('hidden');
-                    resultSection.classList.remove('hidden');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    if (!markdownDisplay) {
+            function showError(message) {
+                console.error(message);
+                if (!markdownDisplay) {
+                    try {
                         markdownDisplay = new MarkdownDisplay({
                             containerId: 'markdownDisplay'
                         });
+                    } catch (err) {
+                        console.error('Failed to initialize MarkdownDisplay:', err);
+                        return;
                     }
-                    markdownDisplay.setContent(`Error: ${error.message}`);
-                    loadingIndicator.classList.add('hidden');
-                    resultSection.classList.remove('hidden');
+                }
+                markdownDisplay.setContent(`Error: ${message}`);
+                loadingIndicator.classList.add('hidden');
+                resultSection.classList.remove('hidden');
+            }
+
+            // Initialize drag and drop zone
+            try {
+                const dropZone = new FileDropZone({
+                    containerId: 'dropZone',
+                    inputId: 'fileInput',
+                    accept: 'image/*,.pdf,.doc,.docx,.txt',
+                    multiple: true,
+                    onFilesReceived: (files) => {
+                        loadingIndicator.classList.remove('hidden');
+                        resultSection.classList.add('hidden');
+
+                        // Create FormData and append the first file
+                        const formData = new FormData();
+                        const file = Array.from(files)[0];
+                        formData.append('file', file);
+
+                        // Call the real API
+                        fetch('http://localhost:8001/api/v1/convert', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            try {
+                                // Initialize markdown display if not already done
+                                if (!markdownDisplay) {
+                                    markdownDisplay = new MarkdownDisplay({
+                                        containerId: 'markdownDisplay',
+                                        downloadFileName: file.name.replace(/\.[^/.]+$/, '') + '.md'
+                                    });
+                                }
+                                
+                                // Set content
+                                markdownDisplay.setContent(data.content);
+                                
+                                loadingIndicator.classList.add('hidden');
+                                resultSection.classList.remove('hidden');
+                            } catch (err) {
+                                showError(`Failed to display markdown: ${err.message}`);
+                            }
+                        })
+                        .catch(error => {
+                            showError(error.message);
+                        });
+                    }
                 });
+
+                // Create the initial drop zone HTML
+                FileDropZone.createDropZone('dropZone');
+            } catch (err) {
+                showError(`Failed to initialize drag and drop: ${err.message}`);
             }
         });
-
-        // Create the initial drop zone HTML
-        FileDropZone.createDropZone('dropZone');
     </script>
 </body>
 </html>
