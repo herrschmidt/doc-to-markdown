@@ -18,33 +18,12 @@
             },
         }
     </script>
-    <!-- Load dependencies in correct order -->
+    <!-- Load dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./components/dragdrop/dragdrop.js"></script>
-    <!-- Initialize components after dependencies are loaded -->
-    <script>
-        // Create a promise that resolves when dragdrop.js is ready
-        window.dragdropReady = new Promise((resolve) => {
-            if (typeof FileDropZone !== 'undefined') {
-                resolve();
-            } else {
-                // If FileDropZone isn't available yet, wait for it
-                const checkInterval = setInterval(() => {
-                    if (typeof FileDropZone !== 'undefined') {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                }, 50);
-            }
-        });
-    </script>
-    <!-- Load MarkdownDisplay as a module -->
     <script type="module">
         import MarkdownDisplay from './components/markdown-display/markdown-display.js';
-        // Make MarkdownDisplay available globally
         window.MarkdownDisplay = MarkdownDisplay;
-        // Signal that MarkdownDisplay is ready
-        window.markdownDisplayReady = true;
     </script>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
@@ -105,25 +84,9 @@
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
     <script>
-        // Initialize app when everything is ready
-        async function initializeApp() {
+        // Initialize app when DOM is ready
+        function initializeApp() {
             try {
-                // Wait for dragdrop to be ready
-                await window.dragdropReady;
-                
-                // Wait for MarkdownDisplay to be ready
-                await new Promise((resolve) => {
-                    if (window.markdownDisplayReady) {
-                        resolve();
-                    } else {
-                        const checkInterval = setInterval(() => {
-                            if (window.markdownDisplayReady) {
-                                clearInterval(checkInterval);
-                                resolve();
-                            }
-                        }, 50);
-                    }
-                });
 
                 // Now we can safely initialize everything
                 const loadingIndicator = document.getElementById('loadingIndicator');

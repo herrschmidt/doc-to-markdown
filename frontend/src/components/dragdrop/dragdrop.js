@@ -114,6 +114,9 @@ class FileDropZone {
     }
 }
 
+// Make FileDropZone available in both CommonJS and browser environments
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = FileDropZone;
+} else {
+    window.FileDropZone = FileDropZone;
 }
