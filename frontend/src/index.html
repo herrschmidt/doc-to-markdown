@@ -33,6 +33,31 @@
         .markdown-content pre code { display: block; padding: 1em; overflow-x: auto; }
         .markdown-content blockquote { border-left: 4px solid #ddd; margin: 1em 0; padding-left: 1em; color: #666; }
         
+        /* Table styles */
+        .markdown-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+            font-size: 0.9em;
+        }
+        .markdown-content table th {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 0.5em 1em;
+            text-align: left;
+            font-weight: bold;
+        }
+        .markdown-content table td {
+            border: 1px solid #ddd;
+            padding: 0.5em 1em;
+        }
+        .markdown-content table tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        .markdown-content table tr:hover {
+            background-color: #f0f0f0;
+        }
+        
         .result-container {
             position: relative;
         }
