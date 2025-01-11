@@ -190,5 +190,5 @@ class MarkdownDisplay {
     }
 }
 
-// Make MarkdownDisplay available globally
-window.MarkdownDisplay = MarkdownDisplay;
+// Export the class
+export default MarkdownDisplay;

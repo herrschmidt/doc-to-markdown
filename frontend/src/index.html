@@ -20,8 +20,11 @@
     </script>
     <!-- Load dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./components/markdown-display/markdown-display.js"></script>
     <script src="./components/dragdrop/dragdrop.js"></script>
+    <script type="module">
+        import MarkdownDisplay from './components/markdown-display/markdown-display.js';
+        window.MarkdownDisplay = MarkdownDisplay;
+    </script>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
     <div class="container mx-auto lg:px-[10%]">
@@ -80,7 +83,11 @@
 
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
-    <script>
+    <script type="module">
+        // Initialize app after modules are loaded
+        import MarkdownDisplay from './components/markdown-display/markdown-display.js';
+        window.MarkdownDisplay = MarkdownDisplay;
+
         // Wait for DOM to be ready
         document.addEventListener('DOMContentLoaded', () => {
             const loadingIndicator = document.getElementById('loadingIndicator');
