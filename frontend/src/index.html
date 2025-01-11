@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.3/dist/full.css" rel="stylesheet" type="text/css" />
     <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -19,6 +18,10 @@
             },
         }
     </script>
+    <!-- Load dependencies in order -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="./components/markdown-display/markdown-display.js"></script>
+    <script src="./components/dragdrop/dragdrop.js"></script>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
     <div class="container mx-auto lg:px-[10%]">
@@ -77,11 +80,11 @@
 
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
-    <script src="./components/dragdrop/dragdrop.js"></script>
-    <script src="./components/markdown-display/markdown-display.js"></script>
     <script>
-        // Wait for all scripts to load
-        window.addEventListener('load', () => {
+        // Initialize application when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Give scripts a moment to initialize
+            setTimeout(() => {
             // Check if required components are available
             if (typeof FileDropZone === 'undefined') {
                 console.error('FileDropZone component not loaded');
@@ -174,6 +177,7 @@
             } catch (err) {
                 showError(`Failed to initialize drag and drop: ${err.message}`);
             }
+            }, 100); // Small delay to ensure scripts are initialized
         });
     </script>
 </body>
