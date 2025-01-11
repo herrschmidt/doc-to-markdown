@@ -18,12 +18,33 @@
             },
         }
     </script>
-    <!-- Load dependencies -->
+    <!-- Load dependencies in correct order -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./components/dragdrop/dragdrop.js"></script>
+    <!-- Initialize components after dependencies are loaded -->
+    <script>
+        // Create a promise that resolves when dragdrop.js is ready
+        window.dragdropReady = new Promise((resolve) => {
+            if (typeof FileDropZone !== 'undefined') {
+                resolve();
+            } else {
+                // If FileDropZone isn't available yet, wait for it
+                const checkInterval = setInterval(() => {
+                    if (typeof FileDropZone !== 'undefined') {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+    </script>
+    <!-- Load MarkdownDisplay as a module -->
     <script type="module">
         import MarkdownDisplay from './components/markdown-display/markdown-display.js';
+        // Make MarkdownDisplay available globally
         window.MarkdownDisplay = MarkdownDisplay;
+        // Signal that MarkdownDisplay is ready
+        window.markdownDisplayReady = true;
     </script>
 </head>
 <body class="min-h-screen bg-base-200 p-4">
@@ -83,92 +104,117 @@
 
     <link rel="stylesheet" href="./components/dragdrop/dragdrop.css">
     <link rel="stylesheet" href="./components/markdown-display/markdown-display.css">
-    <script type="module">
-        // Initialize app after modules are loaded
-        import MarkdownDisplay from './components/markdown-display/markdown-display.js';
-        window.MarkdownDisplay = MarkdownDisplay;
-
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', () => {
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const resultSection = document.getElementById('resultSection');
-            let markdownDisplay;
-
-            function showError(message) {
-                console.error(message);
-                if (!markdownDisplay) {
-                    try {
-                        markdownDisplay = new MarkdownDisplay({
-                            containerId: 'markdownDisplay'
-                        });
-                    } catch (err) {
-                        console.error('Failed to initialize MarkdownDisplay:', err);
-                        return;
-                    }
-                }
-                markdownDisplay.setContent(`Error: ${message}`);
-                loadingIndicator.classList.add('hidden');
-                resultSection.classList.remove('hidden');
-            }
-
-            // Initialize drag and drop zone
+    <script>
+        // Initialize app when everything is ready
+        async function initializeApp() {
             try {
-                const dropZone = new FileDropZone({
-                    containerId: 'dropZone',
-                    inputId: 'fileInput',
-                    accept: 'image/*,.pdf,.doc,.docx,.txt',
-                    multiple: true,
-                    onFilesReceived: (files) => {
-                        loadingIndicator.classList.remove('hidden');
-                        resultSection.classList.add('hidden');
-
-                        // Create FormData and append the first file
-                        const formData = new FormData();
-                        const file = Array.from(files)[0];
-                        formData.append('file', file);
-
-                        // Call the real API
-                        fetch('http://localhost:8001/api/v1/convert', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
+                // Wait for dragdrop to be ready
+                await window.dragdropReady;
+                
+                // Wait for MarkdownDisplay to be ready
+                await new Promise((resolve) => {
+                    if (window.markdownDisplayReady) {
+                        resolve();
+                    } else {
+                        const checkInterval = setInterval(() => {
+                            if (window.markdownDisplayReady) {
+                                clearInterval(checkInterval);
+                                resolve();
                             }
-                            return response.json();
-                        })
-                        .then(data => {
-                            try {
-                                // Initialize markdown display if not already done
-                                if (!markdownDisplay) {
-                                    markdownDisplay = new MarkdownDisplay({
-                                        containerId: 'markdownDisplay',
-                                        downloadFileName: file.name.replace(/\.[^/.]+$/, '') + '.md'
-                                    });
-                                }
-                                
-                                // Set content
-                                markdownDisplay.setContent(data.content);
-                                
-                                loadingIndicator.classList.add('hidden');
-                                resultSection.classList.remove('hidden');
-                            } catch (err) {
-                                showError(`Failed to display markdown: ${err.message}`);
-                            }
-                        })
-                        .catch(error => {
-                            showError(error.message);
-                        });
+                        }, 50);
                     }
                 });
 
-                // Create the initial drop zone HTML
-                FileDropZone.createDropZone('dropZone');
+                // Now we can safely initialize everything
+                const loadingIndicator = document.getElementById('loadingIndicator');
+                const resultSection = document.getElementById('resultSection');
+                let markdownDisplay;
+
+                function showError(message) {
+                    console.error(message);
+                    if (!markdownDisplay) {
+                        try {
+                            markdownDisplay = new MarkdownDisplay({
+                                containerId: 'markdownDisplay'
+                            });
+                        } catch (err) {
+                            console.error('Failed to initialize MarkdownDisplay:', err);
+                            return;
+                        }
+                    }
+                    markdownDisplay.setContent(`Error: ${message}`);
+                    loadingIndicator.classList.add('hidden');
+                    resultSection.classList.remove('hidden');
+                }
+
+                // Initialize drag and drop zone
+                try {
+                    const dropZone = new FileDropZone({
+                        containerId: 'dropZone',
+                        inputId: 'fileInput',
+                        accept: 'image/*,.pdf,.doc,.docx,.txt',
+                        multiple: true,
+                        onFilesReceived: (files) => {
+                            loadingIndicator.classList.remove('hidden');
+                            resultSection.classList.add('hidden');
+
+                            // Create FormData and append the first file
+                            const formData = new FormData();
+                            const file = Array.from(files)[0];
+                            formData.append('file', file);
+
+                            // Call the real API
+                            fetch('http://localhost:8001/api/v1/convert', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                try {
+                                    // Initialize markdown display if not already done
+                                    if (!markdownDisplay) {
+                                        markdownDisplay = new MarkdownDisplay({
+                                            containerId: 'markdownDisplay',
+                                            downloadFileName: file.name.replace(/\.[^/.]+$/, '') + '.md'
+                                        });
+                                    }
+                                    
+                                    // Set content
+                                    markdownDisplay.setContent(data.content);
+                                    
+                                    loadingIndicator.classList.add('hidden');
+                                    resultSection.classList.remove('hidden');
+                                } catch (err) {
+                                    showError(`Failed to display markdown: ${err.message}`);
+                                }
+                            })
+                            .catch(error => {
+                                showError(error.message);
+                            });
+                        }
+                    });
+
+                    // Create the initial drop zone HTML
+                    FileDropZone.createDropZone('dropZone');
+                } catch (err) {
+                    showError(`Failed to initialize drag and drop: ${err.message}`);
+                }
             } catch (err) {
-                showError(`Failed to initialize drag and drop: ${err.message}`);
+                console.error('Failed to initialize application:', err);
             }
-        });
+        }
+
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
     </script>
 </body>
 </html>
