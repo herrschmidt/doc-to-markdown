@@ -5,7 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Markdown</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.3/dist/full.css" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        magic: ['Righteous', 'cursive'],
+                    },
+                },
+            },
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         .markdown-content {
@@ -50,7 +62,7 @@
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
                 <div class="mb-8">
-                    <h2 class="card-title text-3xl mb-2">Magic Markdown</h2>
+                    <h2 class="card-title text-3xl mb-2 font-magic text-primary">Magic Markdown</h2>
                     <p class="text-xl mb-4">From any document to perfectly structured markdown in seconds.</p>
                     <div class="text-base-content/70 space-y-1">
                         <p>Supports PDFs, scans / images, Docx, Html and PowerPoint documents.</p>
