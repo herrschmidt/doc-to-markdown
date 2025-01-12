@@ -60,17 +60,26 @@ git clone https://github.com/herrschmidt/doc-to-markdown.git
 cd doc-to-markdown
 ```
 
-2. Run the setup script:
-```bash
-chmod +x setup/unix/*.sh  # Make scripts executable
-./setup/unix/setup_all.sh
-```
+2. Choose your setup method:
+
+   **A. Native Unix Systems (Linux, macOS)**
+   ```bash
+   chmod +x setup/unix/*.sh  # Make scripts executable
+   ./setup/unix/setup_all.sh
+   ```
+
+   **B. Windows Subsystem for Linux (WSL)**
+   ```bash
+   chmod +x setup/unix/*.sh  # Make scripts executable
+   ./setup/unix/setup_all.sh
+   ```
+   > **Note:** WSL requires additional networking configuration. See `setup/README.md` for WSL-specific instructions.
 
 3. Start the servers:
 
    Option 1: Regular mode (blocks terminal)
    ```bash
-   # Terminal 1 - Backend
+   # Terminal 1 - Backend (add --forwarded-allow-ips='*' if using WSL)
    cd backend
    source venv/bin/activate
    uvicorn app.main:app --reload --port 8001 --host 0.0.0.0
@@ -82,7 +91,7 @@ chmod +x setup/unix/*.sh  # Make scripts executable
 
    Option 2: Background mode
    ```bash
-   # Start backend
+   # Start backend (add --forwarded-allow-ips='*' if using WSL)
    cd backend && source venv/bin/activate && nohup uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 > backend.log 2>&1 &
 
    # Start frontend
@@ -91,6 +100,8 @@ chmod +x setup/unix/*.sh  # Make scripts executable
    # Monitor logs
    tail -f backend.log   # Backend logs
    tail -f frontend.log  # Frontend logs
+   ```
+
    > **Note:** When copying commands from the setup script output, make sure not to include any surrounding quotes that might be part of the echo statements.
 
 4. Stop the servers:

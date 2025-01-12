@@ -1,6 +1,6 @@
 # Setup Scripts
 
-This directory contains setup scripts for Unix-like systems (Linux, macOS).
+This directory contains setup scripts for Unix-like systems (Linux, macOS) and Windows Subsystem for Linux (WSL).
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ This directory contains setup scripts for Unix-like systems (Linux, macOS).
 - Node.js 20 or later
 - npm 10 or later
 
-## Setup Instructions
+## Native Unix Systems (Linux, macOS)
 
 Run the setup script:
 ```bash
@@ -57,6 +57,49 @@ tail -f frontend.log
 ps aux | grep uvicorn    # For backend
 ps aux | grep "http.server"  # For frontend
 ```
+
+## Windows Subsystem for Linux (WSL)
+
+The setup process in WSL is similar to Unix systems but requires some additional networking configuration to work properly with Windows.
+
+### Setup
+
+1. Make scripts executable and run setup:
+```bash
+chmod +x setup/unix/*.sh
+./setup/unix/setup_all.sh
+```
+
+### Starting the Servers
+
+#### 1. Regular Mode (Blocks Terminal)
+```bash
+# Start backend (note the --forwarded-allow-ips flag for WSL compatibility)
+cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 --forwarded-allow-ips='*'
+
+# Start frontend (in another terminal)
+cd frontend/src && python3 -m http.server 8000 --bind 0.0.0.0
+```
+
+#### 2. Background Mode
+```bash
+# Start backend
+cd backend && source venv/bin/activate && nohup uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 --forwarded-allow-ips='*' > backend.log 2>&1 &
+
+# Start frontend
+nohup python3 -m http.server 8000 --bind 0.0.0.0 --directory frontend/src > frontend.log 2>&1 &
+```
+
+Monitor processes and logs the same way as in Unix systems.
+
+### WSL-Specific Notes
+
+1. The `--forwarded-allow-ips='*'` flag is required for the backend server to work properly with Windows networking
+2. Access the application through your Windows browser at `http://localhost:8000`
+3. If you can't connect to the backend:
+   - Make sure WSL networking is properly configured
+   - Try using the WSL IP address (find it with `ip addr show eth0`)
+   - Ensure Windows Defender Firewall isn't blocking the connection
 
 ### Stopping the Servers
 
