@@ -1,9 +1,11 @@
-fastapi>=0.104.1
-uvicorn>=0.24.0
-python-multipart>=0.0.6  # for file uploads
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6  # for file uploads
 docling>=2.14.0
 python-dotenv>=1.0.0
-pydantic>=2.5.2
+pydantic==2.5.2
+pydantic-settings==2.1.0
+starlette==0.27.0
 pytest>=7.4.3  # for testing
 
 # Test dependencies
@@ -16,4 +18,4 @@ httpx>=0.24.1  # Required by TestClient
 reportlab>=4.1.0  # For creating test PDFs
 pillow>=10.4.0  # For creating test images
 python-pptx>=0.6.21  # For creating test PowerPoint files
-python-magic>=0.4.27  # For file type detection
+python-magic==0.4.27  # For file type detection

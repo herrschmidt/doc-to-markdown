@@ -31,6 +31,10 @@ services:
       dockerfile: docker/backend/Dockerfile
     ports:
       - "8001:8001"
+    environment:
+      - MARKDOWN_API_KEY=${MARKDOWN_API_KEY:-your-secret-key-here}  # Set this in production
+      - MARKDOWN_ALLOWED_ORIGINS=${MARKDOWN_ALLOWED_ORIGINS:-http://localhost:8000}
+      - MARKDOWN_RATE_LIMIT_PER_MINUTE=${MARKDOWN_RATE_LIMIT_PER_MINUTE:-60}
     networks:
       - app-network
     volumes:
