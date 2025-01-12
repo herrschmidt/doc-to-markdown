@@ -62,21 +62,55 @@ cd doc-to-markdown
 
 2. Run the setup script:
 ```bash
-./scripts/setup/setup_all.sh
+chmod +x setup/unix/*.sh  # Make scripts executable
+./setup/unix/setup_all.sh
 ```
 
-3. Start the backend server:
-```bash
-cd backend
-source venv/bin/activate  # Activate the Python virtual environment
-uvicorn app.main:app --reload --port 8001 --host 0.0.0.0
-```
+3. Start the servers:
 
-4. In a new terminal, start the frontend server:
-```bash
-cd frontend/src
-python3 -m http.server 8000 --bind 0.0.0.0
-```
+   Option 1: Regular mode (blocks terminal)
+   ```bash
+   # Terminal 1 - Backend
+   cd backend
+   source venv/bin/activate
+   uvicorn app.main:app --reload --port 8001 --host 0.0.0.0
+
+   # Terminal 2 - Frontend
+   cd frontend/src
+   python3 -m http.server 8000 --bind 0.0.0.0
+   ```
+
+   Option 2: Background mode
+   ```bash
+   # Start backend
+   cd backend && source venv/bin/activate && nohup uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 > backend.log 2>&1 &
+
+   # Start frontend
+   nohup python3 -m http.server 8000 --bind 0.0.0.0 --directory frontend/src > frontend.log 2>&1 &
+
+   # Monitor logs
+   tail -f backend.log   # Backend logs
+   tail -f frontend.log  # Frontend logs
+   > **Note:** When copying commands from the setup script output, make sure not to include any surrounding quotes that might be part of the echo statements.
+
+4. Stop the servers:
+
+   Option 1: If running in regular mode
+   ```bash
+   # Press Ctrl+C in each terminal window
+   ```
+
+   Option 2: If running in background mode
+   ```bash
+   # Easy method using pkill
+   pkill -f uvicorn          # Stop backend
+   pkill -f "http.server"    # Stop frontend
+
+   # Alternative: find and kill by process ID
+   ps aux | grep uvicorn     # Find backend PID
+   ps aux | grep "http.server"  # Find frontend PID
+   kill XXXX                 # Replace XXXX with actual PID
+   ```
 
 5. Open http://localhost:8000/index.html in your browser
 
