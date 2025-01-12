@@ -3,13 +3,19 @@
 # Exit on error
 set -e
 
+# Install uv if not already installed
+if ! command -v uv &> /dev/null; then
+    echo "Installing uv package manager..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
 # Navigate to backend directory
 cd "$(dirname "$0")/../../backend"
 
 # Create Python virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
     echo "Creating Python virtual environment..."
-    python3 -m venv venv
+    uv venv venv
 fi
 
 # Activate virtual environment
@@ -17,7 +23,7 @@ source venv/bin/activate
 
 # Install dependencies
 echo "Installing backend dependencies..."
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 # Create necessary directories
 mkdir -p app/api/routes
@@ -30,8 +36,16 @@ mkdir -p /tmp/doc-to-markdown
 
 echo "Backend setup complete!"
 echo "To start the development server:"
-echo "cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
-echo "Or step by step:"
-echo "1. cd backend"
-echo "2. source venv/bin/activate"
-echo "3. uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
+echo "1. Regular mode (blocks terminal):"
+echo "   cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0"
+echo ""
+echo "2. Background mode (doesn't block terminal):"
+echo "   cd backend && source venv/bin/activate && nohup uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 > backend.log 2>&1 &"
+echo "   # View logs with: tail -f backend.log"
+echo "   # Find process with: ps aux | grep uvicorn"
+echo ""
+echo "To stop the server:"
+echo "- If running in regular mode: press Ctrl+C"
+echo "- If running in background mode:"
+echo "  * Easy method: pkill -f uvicorn"
+echo "  * Alternative: ps aux | grep uvicorn (to find PID) then kill PID"
