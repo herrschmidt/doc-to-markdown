@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/app ./app
 
 # Create upload directory
-RUN mkdir -p /tmp/doc-to-markdown && chmod 777 /tmp/doc-to-markdown
+RUN mkdir -p /tmp/magic-markdown && chmod 777 /tmp/magic-markdown
 
 # Copy entrypoint script
 COPY docker/backend/entrypoint.sh /entrypoint.sh

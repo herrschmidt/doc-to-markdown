@@ -26,8 +26,11 @@ COPY --from=builder /app/src ./src
 COPY docker/frontend/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Create non-root user
-RUN useradd -m -u 1000 frontend
+# Create non-root user and set permissions
+RUN useradd -m -u 1000 frontend && \
+    chown -R frontend:frontend /app/src && \
+    chmod -R 755 /app/src
+
 USER frontend
 
 # Expose port
