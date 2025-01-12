@@ -1,4 +1,4 @@
-# Doc-to-Markdown
+# Magic-Markdown
 
 A web application that converts various document formats to Markdown using FastAPI and DaisyUI.
 
@@ -32,8 +32,8 @@ A web application that converts various document formats to Markdown using FastA
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/herrschmidt/doc-to-markdown.git
-cd doc-to-markdown
+git clone https://github.com/herrschmidt/magic-markdown.git
+cd magic-markdown
 ```
 
 2. Start the containers:
@@ -56,8 +56,8 @@ docker compose -f docker/docker-compose.yml down
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/herrschmidt/doc-to-markdown.git
-cd doc-to-markdown
+git clone https://github.com/herrschmidt/magic-markdown.git
+cd magic-markdown
 ```
 
 2. Choose your setup method:
@@ -128,7 +128,7 @@ cd doc-to-markdown
 ## Project Structure
 
 ```
-doc-to-markdown/
+magic-markdown/
 ├── frontend/                # Frontend application
 │   ├── src/                # Source code
 │   │   ├── components/     # UI components
@@ -157,6 +157,23 @@ doc-to-markdown/
 └── scripts/             # Development scripts
     └── setup/          # Setup scripts
 ```
+
+## Security
+
+- **API Key Authentication**: All API endpoints require an API key for access
+- **Rate Limiting**: Requests are limited per minute to prevent abuse
+- **CORS Protection**: Only configured origins can access the API
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+```env
+MARKDOWN_API_KEY=your-secure-api-key
+MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
+MARKDOWN_RATE_LIMIT_PER_MINUTE=60
+```
+
+For Docker deployment, these variables are configured in `docker/docker-compose.yml`.
 
 ## Development
 

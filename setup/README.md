@@ -130,6 +130,23 @@ pkill -f uvicorn
 pkill -f "python3 -m http.server"
 ```
 
+## Environment Setup
+
+Before starting the servers, create a `.env` file in the project root with your security settings:
+
+```env
+# Required: API key for authentication
+MARKDOWN_API_KEY=your-secure-api-key
+
+# Required: Allowed origins for CORS (comma-separated)
+MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
+
+# Optional: Rate limit per minute (default: 60)
+MARKDOWN_RATE_LIMIT_PER_MINUTE=60
+```
+
+> **Security Note:** In production, always use a strong, randomly generated API key and restrict CORS origins to your trusted domains.
+
 ## What the Scripts Do
 
 1. Frontend Setup:

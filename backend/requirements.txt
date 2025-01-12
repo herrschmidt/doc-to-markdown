@@ -3,18 +3,13 @@ uvicorn==0.24.0
 python-multipart==0.0.6  # for file uploads
 docling>=2.14.0
 python-dotenv>=1.0.0
-pydantic==2.5.2
-pydantic-settings==2.1.0
+pydantic>=2.5.2
+pydantic-settings>=2.3.0  # Updated to match docling's requirements
 starlette==0.27.0
 pytest>=7.4.3  # for testing
 
 # Test dependencies
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
-pytest-cov>=4.1.0
-httpx>=0.24.1  # Required by TestClient
-
-# Additional test dependencies
+python-docx>=1.0.0  # For creating test Word documents
 reportlab>=4.1.0  # For creating test PDFs
 pillow>=10.4.0  # For creating test images
 python-pptx>=0.6.21  # For creating test PowerPoint files
