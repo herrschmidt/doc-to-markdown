@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .api.routes import convert
+from .api.middleware.security import RateLimitMiddleware, verify_api_key
 
 app = FastAPI(
     title=settings.app_name,
@@ -42,17 +43,21 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["POST", "GET"],  # Restrict to needed methods
     allow_headers=["*"],
 )
 
-# Add routers
+# Add security middleware
+app.add_middleware(RateLimitMiddleware)
+
+# Add routers with API key dependency
 app.include_router(
     convert.router,
     prefix=settings.api_prefix,
     tags=["conversion"],
+    dependencies=[Depends(verify_api_key)]
 )
 
 @app.get(
