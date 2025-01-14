@@ -8,6 +8,25 @@ This directory contains setup scripts for Unix-like systems (Linux, macOS) and W
 - Node.js 20 or later
 - npm 10 or later
 
+## Environment Setup
+
+Before starting the servers, create a `.env` file in the project root. You can use the provided `.env.template` file as a starting point:
+
+```bash
+cp .env.template .env
+```
+
+Edit the `.env` file and set the following variables:
+```env
+# Required for both Docker and manual setup
+MARKDOWN_API_KEY=your-secure-api-key
+MARKDOWN_BACKEND_URL=http://localhost:8001
+MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
+MARKDOWN_RATE_LIMIT_PER_MINUTE=60
+```
+
+> **Security Note:** In production, always use a strong, randomly generated API key and restrict CORS origins to your trusted domains.
+
 ## Native Unix Systems (Linux, macOS)
 
 Run the setup script:
@@ -129,23 +148,6 @@ pkill -f uvicorn
 # Stop frontend
 pkill -f "python3 -m http.server"
 ```
-
-## Environment Setup
-
-Before starting the servers, create a `.env` file in the project root with your security settings:
-
-```env
-# Required: API key for authentication
-MARKDOWN_API_KEY=your-secure-api-key
-
-# Required: Allowed origins for CORS (comma-separated)
-MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
-
-# Optional: Rate limit per minute (default: 60)
-MARKDOWN_RATE_LIMIT_PER_MINUTE=60
-```
-
-> **Security Note:** In production, always use a strong, randomly generated API key and restrict CORS origins to your trusted domains.
 
 ## What the Scripts Do
 

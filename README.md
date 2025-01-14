@@ -28,6 +28,25 @@ A web application that converts various document formats to Markdown using FastA
 
 ## Quick Start
 
+### Environment Variables
+
+Before starting the application, create a `.env` file in the project root. You can use the provided `.env.template` file as a starting point:
+
+```bash
+cp .env.template .env
+```
+
+Edit the `.env` file and set the following variables:
+```env
+# Required for both Docker and manual setup
+MARKDOWN_API_KEY=your-secure-api-key
+MARKDOWN_BACKEND_URL=http://localhost:8001
+MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
+MARKDOWN_RATE_LIMIT_PER_MINUTE=60
+```
+
+For Docker deployment, these variables are automatically loaded from the `.env` file. For manual setup, ensure the `.env` file is present in the project root.
+
 ### Using Docker (Recommended)
 
 1. Clone the repository:
@@ -73,7 +92,24 @@ cd magic-markdown
    chmod +x setup/unix/*.sh  # Make scripts executable
    ./setup/unix/setup_all.sh
    ```
-   > **Note:** WSL requires additional networking configuration. See `setup/README.md` for WSL-specific instructions.
+   ### Windows Subsystem for Linux (WSL)
+
+If you're using WSL, follow these additional steps to ensure proper networking:
+
+1. **Backend Server Configuration**:
+   - Add the `--forwarded-allow-ips='*'` flag when starting the backend server:
+     ```bash
+     cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 --forwarded-allow-ips='*'
+     ```
+
+2. **Accessing the Application**:
+   - Open the application in your Windows browser at `http://localhost:8000`.
+
+3. **Troubleshooting**:
+   - If you can't connect to the backend:
+     - Ensure WSL networking is properly configured.
+     - Use the WSL IP address (find it with `ip addr show eth0`).
+     - Check that Windows Defender Firewall isn't blocking the connection.
 
 3. Start the servers:
 
@@ -164,16 +200,6 @@ magic-markdown/
 - **Rate Limiting**: Requests are limited per minute to prevent abuse
 - **CORS Protection**: Only configured origins can access the API
 
-## Environment Variables
-
-Create a `.env` file in the project root:
-```env
-MARKDOWN_API_KEY=your-secure-api-key
-MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
-MARKDOWN_RATE_LIMIT_PER_MINUTE=60
-```
-
-For Docker deployment, these variables are configured in `docker/docker-compose.yml`.
 
 ## Development
 
