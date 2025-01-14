@@ -3,8 +3,33 @@
 # Exit on error
 set -e
 
+# Get the project root directory
+PROJECT_ROOT="$(dirname "$0")/../.."
+
 # Navigate to frontend directory
-cd "$(dirname "$0")/../../frontend"
+cd "$PROJECT_ROOT/frontend"
+
+# Read API key from .env file and create config.js
+if [ -f "$PROJECT_ROOT/.env" ]; then
+    echo "Reading API key from .env file..."
+    # Use grep to find the line, cut to get the value after =, 
+    # tr to remove carriage returns, and sed to remove trailing whitespace and newlines
+    MARKDOWN_API_KEY=$(grep MARKDOWN_API_KEY "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
+    
+    # Create config.js with the cleaned API key
+    echo "window.MARKDOWN_CONFIG = { apiKey: '$MARKDOWN_API_KEY' };" > src/config.js
+    echo "Updated config.js with API key"
+    
+    # Verify the file is created correctly (single line)
+    if [ $(wc -l < src/config.js) -ne 1 ]; then
+        echo "Warning: config.js contains multiple lines. This might indicate an issue with the API key format."
+        echo "Content of config.js:"
+        cat src/config.js
+    fi
+else
+    echo "Warning: .env file not found. config.js will have an empty API key."
+    echo "window.MARKDOWN_CONFIG = { apiKey: '' };" > src/config.js
+fi
 
 # Install dependencies
 echo "Installing frontend dependencies..."
