@@ -4,26 +4,32 @@
 set -e
 
 # Get the project root directory
-PROJECT_ROOT="$(dirname "$0")/../.."
+PROJECT_ROOT="/workspace/magic-markdown"
 
 # Navigate to frontend directory
 cd "$PROJECT_ROOT/frontend"
 
-# Read API key from .env file and create config.js
+# Read all required variables from .env file and create config.js
 if [ -f "$PROJECT_ROOT/.env" ]; then
-    echo "Reading API key from .env file..."
-    # Use grep to find the line, cut to get the value after =, 
-    # tr to remove carriage returns, and sed to remove trailing whitespace and newlines
+    echo "Reading environment variables from .env file..."
+    
+    # Read and clean each variable
     MARKDOWN_API_KEY=$(grep MARKDOWN_API_KEY "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
+    MARKDOWN_ALLOWED_ORIGINS=$(grep MARKDOWN_ALLOWED_ORIGINS "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
+    MARKDOWN_RATE_LIMIT=$(grep MARKDOWN_RATE_LIMIT_PER_MINUTE "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
     
-    # Create config.js with the cleaned API key
-    echo "window.MARKDOWN_CONFIG = { apiKey: '$MARKDOWN_API_KEY' };" > src/config.js
-    echo "Updated config.js with API key"
+    # Create config.js with all variables
+    echo "window.MARKDOWN_CONFIG = {
+  apiKey: '$MARKDOWN_API_KEY',
+  allowedOrigins: '$MARKDOWN_ALLOWED_ORIGINS',
+  rateLimit: $MARKDOWN_RATE_LIMIT
+};" > src/config.js
     
-    # Verify the file is created correctly (single line)
-    if [ $(wc -l < src/config.js) -ne 1 ]; then
-        echo "Warning: config.js contains multiple lines. This might indicate an issue with the API key format."
-        echo "Content of config.js:"
+    echo "Updated config.js with all environment variables"
+    
+    # Verify the file is created correctly
+    if [ $(wc -l < src/config.js) -lt 3 ]; then
+        echo "Warning: config.js might be incomplete. Content:"
         cat src/config.js
     fi
 else

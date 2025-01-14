@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 # Load environment variables from .env file
-load_dotenv("/workspace/magic-markdown/backend/.env")
+load_dotenv("/workspace/magic-markdown/.env")
 
 class Settings(BaseSettings):
     app_name: str = "Doc-to-Markdown API"
