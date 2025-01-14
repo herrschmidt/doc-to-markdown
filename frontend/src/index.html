@@ -19,7 +19,7 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./config.js"></script>
+    <script src="./config.js?v=2"></script>
     <style>
         .markdown-content {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -231,7 +231,7 @@
                 formData.append('file', file);
 
                 // Call the real API
-                fetch('http://localhost:8001/api/v1/convert', {
+                fetch(`${window.MARKDOWN_CONFIG.backendUrl}/api/v1/convert`, {
                     method: 'POST',
                     headers: {
                         'X-API-Key': window.MARKDOWN_CONFIG.apiKey
