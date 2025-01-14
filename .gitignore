@@ -68,3 +68,6 @@ Thumbs.db
 # Local development
 *.local
 *.local.*
+
+# Ignore frontend config file
+frontend/src/config.js
