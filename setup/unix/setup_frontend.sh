@@ -9,32 +9,31 @@ PROJECT_ROOT="/workspace/magic-markdown"
 # Navigate to frontend directory
 cd "$PROJECT_ROOT/frontend"
 
-# Read all required variables from .env file and create config.js
+# Check for .env file
 if [ -f "$PROJECT_ROOT/.env" ]; then
     echo "Reading environment variables from .env file..."
-    
-    # Read and clean each variable
-    MARKDOWN_API_KEY=$(grep MARKDOWN_API_KEY "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
-    MARKDOWN_ALLOWED_ORIGINS=$(grep MARKDOWN_ALLOWED_ORIGINS "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
-    MARKDOWN_RATE_LIMIT=$(grep MARKDOWN_RATE_LIMIT_PER_MINUTE "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
-    
-    # Create config.js with all variables
-    echo "window.MARKDOWN_CONFIG = {
-  apiKey: '$MARKDOWN_API_KEY',
-  allowedOrigins: '$MARKDOWN_ALLOWED_ORIGINS',
-  rateLimit: $MARKDOWN_RATE_LIMIT
-};" > src/config.js
-    
-    echo "Updated config.js with all environment variables"
-    
-    # Verify the file is created correctly
-    if [ $(wc -l < src/config.js) -lt 3 ]; then
-        echo "Warning: config.js might be incomplete. Content:"
-        cat src/config.js
-    fi
+    API_KEY=$(grep MARKDOWN_API_KEY "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
+    RATE_LIMIT=$(grep MARKDOWN_RATE_LIMIT_PER_MINUTE "$PROJECT_ROOT/.env" | cut -d '=' -f2 | tr -d '\r' | sed -e 's/[[:space:]]*$//')
 else
-    echo "Warning: .env file not found. config.js will have an empty API key."
-    echo "window.MARKDOWN_CONFIG = { apiKey: '' };" > src/config.js
+    echo "Error: .env file not found. Please create a .env file with:"
+    echo "MARKDOWN_API_KEY=your_api_key_here"
+    echo "MARKDOWN_RATE_LIMIT_PER_MINUTE=60"
+    exit 1
+fi
+
+# Create config.js with all variables
+echo "window.MARKDOWN_CONFIG = {
+  apiKey: '$API_KEY',
+  rateLimit: $RATE_LIMIT
+};" > src/config.js
+
+echo "Updated config.js with environment variables"
+
+# Verify the file is created correctly
+if [ $(wc -l < src/config.js) -lt 3 ]; then
+    echo "Error: config.js is incomplete. Please check your setup."
+    cat src/config.js
+    exit 1
 fi
 
 # Install dependencies

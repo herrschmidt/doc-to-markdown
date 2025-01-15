@@ -1,10 +1,6 @@
 from pydantic import validator
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
 import os
-
-# Load environment variables from .env file
-load_dotenv("/workspace/magic-markdown/.env")
 
 class Settings(BaseSettings):
     app_name: str = "Doc-to-Markdown API"
@@ -17,6 +13,12 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 60  # Default rate limit is fine to keep
     
     class Config:
-        env_prefix = "MARKDOWN_"  # Environment variables should be prefixed with MARKDOWN_
+        # Read from environment variables directly
+        env_prefix = ""  # No prefix needed since we're using direct env vars
+        case_sensitive = False
+
+# Check for required environment variables
+if not os.getenv("API_KEY"):
+    raise ValueError("API_KEY environment variable is required")
 
 settings = Settings()

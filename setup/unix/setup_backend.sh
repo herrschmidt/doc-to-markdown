@@ -3,6 +3,14 @@
 # Exit on error
 set -e
 
+# Check for .env file
+if [ ! -f "$(dirname "$0")/../../.env" ]; then
+    echo "Error: .env file not found. Please create a .env file with:"
+    echo "MARKDOWN_API_KEY=your_api_key_here"
+    echo "MARKDOWN_RATE_LIMIT_PER_MINUTE=60"
+    exit 1
+fi
+
 # Install uv if not already installed
 if ! command -v uv &> /dev/null; then
     echo "Installing uv package manager..."
