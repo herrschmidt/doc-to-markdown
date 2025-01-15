@@ -15,24 +15,16 @@ git clone https://github.com/herrschmidt/magic-markdown.git
 cd magic-markdown
 ```
 
-2. Create and configure your `.env` file:
+2. Configure your API key:
 ```bash
-cp .env.template .env
+cp docker/docker-compose.template.yml docker/docker-compose.yml
 ```
-Edit the `.env` file with your configuration:
-```env
-MARKDOWN_API_KEY=your-api-key-here
-MARKDOWN_BACKEND_URL=http://localhost:8001
-MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
-MARKDOWN_RATE_LIMIT_PER_MINUTE=60
-```
+Edit the `docker/docker-compose.yml` file:
+- Set your API key in the environment section
+- Configure the rate limit if needed (default is 60 requests/minute)
 
 3. Start the containers:
 ```bash
-# Development mode with hot reload
-docker compose -f docker/docker-compose.dev.yml up -d
-
-# OR Production mode
 docker compose -f docker/docker-compose.yml up -d
 ```
 
@@ -95,10 +87,8 @@ The following environment variables must be set in `.env`:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MARKDOWN_API_KEY` | API key for authentication | (required) |
-| `MARKDOWN_BACKEND_URL` | Backend API URL | http://localhost:8001 |
-| `MARKDOWN_ALLOWED_ORIGINS` | Allowed CORS origins | http://localhost:8000 |
-| `MARKDOWN_RATE_LIMIT_PER_MINUTE` | API rate limit | 60 |
+| `API_KEY` | API key for authentication | (required) |
+| `RATE_LIMIT` | API rate limit (requests per minute) | 60 |
 
 ## API Documentation
 

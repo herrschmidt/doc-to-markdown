@@ -34,50 +34,23 @@ git clone https://github.com/herrschmidt/magic-markdown.git
 cd magic-markdown
 ```
 
-2. Start the containers:
+2. Copy and configure template files:
+```bash
+# Copy Docker Compose templates
+cp docker/docker-compose.dev.template.yml docker/docker-compose.dev.yml
+cp docker/docker-compose.template.yml docker/docker-compose.yml
+
+# Edit docker-compose.yml / docker-compose.dev.yml and configure:
+# - API_KEY: Add your API key (required)
+# - RATE_LIMIT: Set your desired rate limit (optional, defaults to 60 requests/minute)
+```
+
+3. Start the containers:
 ```bash
 # Development mode with hot reload and health checks
 docker compose -f docker/docker-compose.dev.yml up -d
 
-# View health check status
-docker compose -f docker/docker-compose.dev.yml ps
-
-# View health check logs
-docker compose -f docker/docker-compose.dev.yml logs --tail=10
-
 # OR Production mode
-docker compose -f docker/docker-compose.yml up -d
-```
-
-3. Open http://localhost:8000/index.html in your browser
-
-4. Stop the containers:
-
-## Using Template Files
-
-The project includes template files for Docker Compose configurations:
-
-- `docker/docker-compose.template.yml` - Production configuration template
-- `docker/docker-compose.dev.template.yml` - Development configuration template
-
-To use these templates:
-
-1. Copy the desired template file to its corresponding .yml file:
-```bash
-cp docker/docker-compose.dev.template.yml docker/docker-compose.dev.yml
-cp docker/docker-compose.template.yml docker/docker-compose.yml
-```
-
-2. Edit the .yml file and configure:
-- API_KEY: Add your API key (required)
-- RATE_LIMIT: Set your desired rate limit (optional, defaults to 60 requests/minute)
-
-3. Start the containers using the configured file:
-```bash
-# For development
-docker compose -f docker/docker-compose.dev.yml up -d
-
-# For production
 docker compose -f docker/docker-compose.yml up -d
 ```
 
@@ -164,8 +137,6 @@ MARKDOWN_RATE_LIMIT_PER_MINUTE=60
    tail -f frontend.log  # Frontend logs
    ```
 
-   > **Note:** When copying commands from the setup script output, make sure not to include any surrounding quotes that might be part of the echo statements.
-
 5. Stop the servers:
 
    Option 1: If running in regular mode
@@ -225,7 +196,6 @@ magic-markdown/
 - **API Key Authentication**: All API endpoints require an API key for access
 - **Rate Limiting**: Requests are limited per minute to prevent abuse
 - **CORS Protection**: Only configured origins can access the API
-
 
 ## Development
 
