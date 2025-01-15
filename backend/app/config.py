@@ -19,7 +19,11 @@ class Settings(BaseSettings):
     @validator('allowed_origins', pre=True)
     def split_allowed_origins(cls, v):
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(',')]
+            # Remove JSON array brackets and quotes if present
+            if v.startswith('[') and v.endswith(']'):
+                v = v[1:-1]
+            # Split and clean individual origins
+            return [origin.strip().strip('"') for origin in v.split(',')]
         elif isinstance(v, list):
             return v
         return []
