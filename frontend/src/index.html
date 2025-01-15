@@ -231,7 +231,7 @@
                 formData.append('file', file);
 
                 // Call the real API
-                fetch(`${window.MARKDOWN_CONFIG.backendUrl}/api/v1/convert`, {
+                fetch('/api/v1/convert', {
                     method: 'POST',
                     headers: {
                         'X-API-Key': window.MARKDOWN_CONFIG.apiKey
