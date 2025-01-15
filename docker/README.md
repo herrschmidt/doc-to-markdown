@@ -1,180 +1,156 @@
-# Docker Implementation Plan
+# Docker Setup for Magic-Markdown
 
-## Overview
-The application will be containerized using two separate containers orchestrated with Docker Compose:
-1. Frontend container (Node.js + Python HTTP server)
-2. Backend container (Python + FastAPI)
+This project uses Docker Compose to manage the frontend and backend services. Below are instructions for building and running the containers.
 
-## Container Details
+## Prerequisites
 
-### Frontend Container
-- Base image: `node:20-slim`
-- Build steps:
-  1. Install Node.js dependencies
-  2. Install Python 3
-  3. Copy frontend code
-  4. Build frontend assets (if needed)
-  5. Start Python HTTP server
+- Docker Engine 20.10+
+- Docker Compose 2.0+
 
-### Backend Container
-- Base image: `python:3.12-slim`
-- Build steps:
-  1. Install system dependencies for document processing
-  2. Install Python dependencies
-  3. Copy backend code
-  4. Start FastAPI server
+## Quick Start
 
-## Directory Structure
-```
-docker/
-├── frontend/
-│   ├── Dockerfile
-│   └── entrypoint.sh
-├── backend/
-│   ├── Dockerfile
-│   └── entrypoint.sh
-├── docker-compose.yml
-└── docker-compose.dev.yml
-```
-
-## Implementation Steps
-
-1. Create Frontend Dockerfile:
-   - Use multi-stage build to minimize image size
-   - Install only production dependencies
-   - Configure Python HTTP server
-   - Set up health checks
-
-2. Create Backend Dockerfile:
-   - Install system dependencies for document processing
-   - Set up virtual environment
-   - Configure FastAPI server
-   - Set up health checks
-
-3. Create Docker Compose Files:
-   - Production configuration (docker-compose.yml)
-   - Development configuration with hot reload (docker-compose.dev.yml)
-   - Configure networking between containers
-   - Set up environment variables
-
-4. Create Helper Scripts:
-   - Development setup script
-   - Production deployment script
-   - Container health check script
-
-5. Configure Environment Variables:
-   - API URLs
-   - Port mappings
-   - Development/production modes
-   - Resource limits
-
-6. Set Up Networking:
-   - Create internal network for container communication
-   - Expose only necessary ports
-   - Configure CORS for development
-
-7. Add Volume Mounts:
-   - Mount test files directory
-   - Mount temporary upload directory
-   - Mount logs directory
-
-8. Configure Logging:
-   - Set up log rotation
-   - Configure log levels for different environments
-   - Set up log aggregation
-
-## Development Workflow
-
-1. Local Development:
+1. Clone the repository:
 ```bash
-# Start with hot reload
-docker compose -f docker-compose.dev.yml up
-
-# Rebuild containers
-docker compose -f docker-compose.dev.yml up --build
-
-# View logs
-docker compose -f docker-compose.dev.yml logs -f
+git clone https://github.com/herrschmidt/magic-markdown.git
+cd magic-markdown
 ```
 
-2. Production Deployment:
+2. Create and configure your `.env` file:
 ```bash
-# Build and start containers
+cp .env.template .env
+```
+Edit the `.env` file with your configuration:
+```env
+MARKDOWN_API_KEY=your-api-key-here
+MARKDOWN_BACKEND_URL=http://localhost:8001
+MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
+MARKDOWN_RATE_LIMIT_PER_MINUTE=60
+```
+
+3. Start the containers:
+```bash
+# Development mode with hot reload
+docker compose -f docker/docker-compose.dev.yml up -d
+
+# OR Production mode
+docker compose -f docker/docker-compose.yml up -d
+```
+
+4. Access the application:
+- Frontend: http://localhost:8000
+- Backend API Docs: http://localhost:8001/docs
+
+## Development Mode
+
+For local development with hot reload:
+```bash
+docker compose -f docker/docker-compose.dev.yml up
+```
+
+This will:
+- Mount local source code directories
+- Enable hot reload for both frontend and backend
+- Show real-time logs in the terminal
+
+## Common Commands
+
+### Start/Stop Services
+```bash
+# Start services
 docker compose up -d
 
-# Check status
-docker compose ps
+# Stop services
+docker compose down
 
-# View logs
+# Stop and remove volumes
+docker compose down -v
+```
+
+### View Logs
+```bash
+# View all logs
+docker compose logs -f
+
+# View frontend logs
+docker compose logs -f frontend
+
+# View backend logs
+docker compose logs -f backend
+```
+
+### Rebuild Containers
+```bash
+# Rebuild and restart
+docker compose up -d --build
+```
+
+### Check Status
+```bash
+docker compose ps
+```
+
+## Environment Variables
+
+The following environment variables must be set in `.env`:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MARKDOWN_API_KEY` | API key for authentication | (required) |
+| `MARKDOWN_BACKEND_URL` | Backend API URL | http://localhost:8001 |
+| `MARKDOWN_ALLOWED_ORIGINS` | Allowed CORS origins | http://localhost:8000 |
+| `MARKDOWN_RATE_LIMIT_PER_MINUTE` | API rate limit | 60 |
+
+## API Documentation
+
+- Swagger UI: http://localhost:8001/docs
+- ReDoc: http://localhost:8001/redoc
+
+## Project Structure
+
+```
+docker/
+├── frontend/          # Frontend Docker configuration
+│   ├── Dockerfile
+│   └── entrypoint.sh
+├── backend/           # Backend Docker configuration
+│   ├── Dockerfile
+│   └── entrypoint.sh
+├── docker-compose.yml         # Production configuration
+└── docker-compose.dev.yml     # Development configuration
+```
+
+## Troubleshooting
+
+1. **Port conflicts**:
+   - Frontend: 8000
+   - Backend: 8001
+   Ensure these ports are available
+
+2. **Build failures**:
+```bash
+docker compose build --no-cache
+```
+
+3. **Container not starting**:
+```bash
 docker compose logs -f
 ```
 
-## Resource Management
+## Citation
 
-### Frontend Container
-- Memory: 256MB minimum, 512MB recommended
-- CPU: 0.5 cores minimum
-- Storage: 100MB for code and dependencies
+This project uses Docling for document conversion. If you use this software in your research, please cite:
 
-### Backend Container
-- Memory: 512MB minimum, 1GB recommended
-- CPU: 1 core minimum
-- Storage: 500MB for code, dependencies, and temporary files
+```bibtex
+@techreport{Docling,
+  author = {Deep Search Team},
+  month = {8},
+  title = {Docling Technical Report},
+  url = {https://arxiv.org/abs/2408.09869},
+  eprint = {2408.09869},
+  doi = {10.48550/arXiv.2408.09869},
+  version = {1.0.0},
+  year = {2024}
+}
+```
 
-## Security Considerations
-
-1. Container Security:
-   - Use non-root users
-   - Minimize installed packages
-   - Regular security updates
-   - Scan images for vulnerabilities
-
-2. Network Security:
-   - Internal network for container communication
-   - Expose minimum required ports
-   - Use TLS in production
-   - Configure CORS properly
-
-3. File System Security:
-   - Read-only file system where possible
-   - Secure temporary file handling
-   - Proper permissions for mounted volumes
-
-## Monitoring and Maintenance
-
-1. Health Checks:
-   - Frontend: HTTP check on main page
-   - Backend: Health endpoint check
-   - Container resource monitoring
-
-2. Backup Strategy:
-   - Regular container image backups
-   - Log retention policy
-   - Configuration backups
-
-3. Update Strategy:
-   - Rolling updates for zero downtime
-   - Version tagging for images
-   - Rollback procedures
-
-## Next Steps
-
-1. Create base Dockerfiles:
-   - [ ] Frontend Dockerfile
-   - [ ] Backend Dockerfile
-   - [ ] Development entrypoint scripts
-
-2. Set up Docker Compose:
-   - [ ] Basic production configuration
-   - [ ] Development configuration with hot reload
-   - [ ] Environment variable templates
-
-3. Create helper scripts:
-   - [ ] Development setup
-   - [ ] Production deployment
-   - [ ] Health checks
-
-4. Documentation:
-   - [ ] Update main README with Docker instructions
-   - [ ] Add deployment guide
-   - [ ] Document environment variables
+For additional help, please refer to the main project documentation.
