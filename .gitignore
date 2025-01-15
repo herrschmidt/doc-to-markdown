@@ -57,6 +57,8 @@ docs/_build/
 # Docker
 *.env
 .docker/
+docker/docker-compose.yml
+docker/docker-compose.dev.yml
 
 # System Files
 .DS_Store
