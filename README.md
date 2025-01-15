@@ -26,28 +26,7 @@ A web application that converts various document formats to Markdown using FastA
   - Image extraction and embedding
   - File size validation (max 10MB)
 
-## Quick Start
-
-### Environment Variables
-
-Before starting the application, create a `.env` file in the project root. You can use the provided `.env.template` file as a starting point:
-
-```bash
-cp .env.template .env
-```
-
-Edit the `.env` file and set the following variables:
-```env
-# Required for both Docker and manual setup
-MARKDOWN_API_KEY=your-secure-api-key
-MARKDOWN_BACKEND_URL=http://localhost:8001
-MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
-MARKDOWN_RATE_LIMIT_PER_MINUTE=60
-```
-
-For Docker deployment, these variables are automatically loaded from the `.env` file. For manual setup, ensure the `.env` file is present in the project root.
-
-### Using Docker (Recommended)
+## Quick Start using Docker (Recommended)
 
 1. Clone the repository:
 ```bash
@@ -57,8 +36,14 @@ cd magic-markdown
 
 2. Start the containers:
 ```bash
-# Development mode with hot reload
+# Development mode with hot reload and health checks
 docker compose -f docker/docker-compose.dev.yml up -d
+
+# View health check status
+docker compose -f docker/docker-compose.dev.yml ps
+
+# View health check logs
+docker compose -f docker/docker-compose.dev.yml logs --tail=10
 
 # OR Production mode
 docker compose -f docker/docker-compose.yml up -d
@@ -67,6 +52,38 @@ docker compose -f docker/docker-compose.yml up -d
 3. Open http://localhost:8000/index.html in your browser
 
 4. Stop the containers:
+
+## Using Template Files
+
+The project includes template files for Docker Compose configurations:
+
+- `docker/docker-compose.template.yml` - Production configuration template
+- `docker/docker-compose.dev.template.yml` - Development configuration template
+
+To use these templates:
+
+1. Copy the desired template file to its corresponding .yml file:
+```bash
+cp docker/docker-compose.dev.template.yml docker/docker-compose.dev.yml
+cp docker/docker-compose.template.yml docker/docker-compose.yml
+```
+
+2. Edit the .yml file and configure:
+- API_KEY: Add your API key (required)
+- RATE_LIMIT: Set your desired rate limit (optional, defaults to 60 requests/minute)
+
+3. Start the containers using the configured file:
+```bash
+# For development
+docker compose -f docker/docker-compose.dev.yml up -d
+
+# For production
+docker compose -f docker/docker-compose.yml up -d
+```
+
+4. Open http://localhost:8000/index.html in your browser
+
+5. Stop the containers:
 ```bash
 docker compose -f docker/docker-compose.yml down
 ```
@@ -79,7 +96,21 @@ git clone https://github.com/herrschmidt/magic-markdown.git
 cd magic-markdown
 ```
 
-2. Choose your setup method:
+2. Create a `.env` file in the project root. You can use the provided `.env.template` file as a starting point:
+
+```bash
+cp .env.template .env
+```
+
+Edit the `.env` file and set the following variables:
+```env
+MARKDOWN_API_KEY=your-secure-api-key
+MARKDOWN_BACKEND_URL=http://localhost:8001
+MARKDOWN_ALLOWED_ORIGINS=http://localhost:8000
+MARKDOWN_RATE_LIMIT_PER_MINUTE=60
+```
+
+3. Choose your setup method:
 
    **A. Native Unix Systems (Linux, macOS)**
    ```bash
@@ -91,27 +122,22 @@ cd magic-markdown
    ```bash
    chmod +x setup/unix/*.sh  # Make scripts executable
    ./setup/unix/setup_all.sh
+
+   # Additional WSL-specific configuration
+   # 1. Backend Server Configuration
+   cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 --forwarded-allow-ips='*'
+
+   # 2. Accessing the Application
+   # Open the application in your Windows browser at http://localhost:8000
+
+   # 3. Troubleshooting
+   # If you can't connect to the backend:
+   # - Ensure WSL networking is properly configured
+   # - Use the WSL IP address (find it with `ip addr show eth0`)
+   # - Check that Windows Defender Firewall isn't blocking the connection
    ```
-   ### Windows Subsystem for Linux (WSL)
 
-If you're using WSL, follow these additional steps to ensure proper networking:
-
-1. **Backend Server Configuration**:
-   - Add the `--forwarded-allow-ips='*'` flag when starting the backend server:
-     ```bash
-     cd backend && source venv/bin/activate && uvicorn app.main:app --reload --port 8001 --host 0.0.0.0 --forwarded-allow-ips='*'
-     ```
-
-2. **Accessing the Application**:
-   - Open the application in your Windows browser at `http://localhost:8000`.
-
-3. **Troubleshooting**:
-   - If you can't connect to the backend:
-     - Ensure WSL networking is properly configured.
-     - Use the WSL IP address (find it with `ip addr show eth0`).
-     - Check that Windows Defender Firewall isn't blocking the connection.
-
-3. Start the servers:
+4. Start the servers:
 
    Option 1: Regular mode (blocks terminal)
    ```bash
@@ -140,7 +166,7 @@ If you're using WSL, follow these additional steps to ensure proper networking:
 
    > **Note:** When copying commands from the setup script output, make sure not to include any surrounding quotes that might be part of the echo statements.
 
-4. Stop the servers:
+5. Stop the servers:
 
    Option 1: If running in regular mode
    ```bash
@@ -159,7 +185,7 @@ If you're using WSL, follow these additional steps to ensure proper networking:
    kill XXXX                 # Replace XXXX with actual PID
    ```
 
-5. Open http://localhost:8000/index.html in your browser
+6. Open http://localhost:8000/index.html in your browser
 
 ## Project Structure
 
@@ -205,15 +231,18 @@ magic-markdown/
 
 ### Using Docker (Recommended)
 
-Development with hot reload:
+Development with hot reload and health monitoring:
 ```bash
-# Start containers
+# Start containers with health checks
 docker compose -f docker/docker-compose.dev.yml up -d
 
-# View logs
+# View service health status
+docker compose -f docker/docker-compose.dev.yml ps
+
+# View logs with health check information
 docker compose -f docker/docker-compose.dev.yml logs -f
 
-# Rebuild containers
+# Rebuild containers while maintaining health checks
 docker compose -f docker/docker-compose.dev.yml up --build -d
 
 # Stop containers
