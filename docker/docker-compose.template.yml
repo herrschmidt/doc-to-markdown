@@ -19,7 +19,8 @@ services:
       context: ..
       dockerfile: docker/frontend/Dockerfile
     environment:
-      - API_KEY=your_api_key_here
+      # Add your api key below (required)
+      - API_KEY=
     networks:
       - app-network
     restart: unless-stopped
@@ -35,8 +36,8 @@ services:
       context: ..
       dockerfile: docker/backend/Dockerfile
     environment:
-      - API_KEY=your_api_key_here
-      - RATE_LIMIT=60
+      - API_KEY= # Add your API key here (required)
+      - RATE_LIMIT=60 # Change rate limit (optional)
     networks:
       - app-network
     volumes:

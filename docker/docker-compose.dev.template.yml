@@ -17,8 +17,7 @@ services:
       - ../frontend/src:/app/src
     environment:
       - NODE_ENV=development
-      - API_KEY= # Add your API key here
-      - RATE_LIMIT=${RATE_LIMIT:-60} # Optional rate limit per minute
+      - API_KEY= # Add your API key here (required)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000"]
@@ -48,8 +47,8 @@ services:
     environment:
       - PYTHONPATH=/app
       - ENVIRONMENT=development
-      - API_KEY= # Add your API key here
-      - RATE_LIMIT=${RATE_LIMIT:-60} # Optional rate limit per minute
+      - API_KEY= # Add your API key here (required)
+      - RATE_LIMIT=60 # Change rate limit (optional)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/health"]
