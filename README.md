@@ -41,8 +41,10 @@ cp docker/docker-compose.dev.template.yml docker/docker-compose.dev.yml
 cp docker/docker-compose.template.yml docker/docker-compose.yml
 
 # Edit docker-compose.yml / docker-compose.dev.yml and configure:
-# - API_KEY: Add your API key (required)
-# - RATE_LIMIT: Set your desired rate limit (optional, defaults to 60 requests/minute)
+- API_KEY: Add your API key in TWO places (required):
+  1. Under the frontend service environment section
+  2. Under the backend service environment section
+- RATE_LIMIT: Set your desired rate limit (optional, defaults to 60 requests/minute)
 ```
 
 3. Start the containers:

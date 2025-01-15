@@ -20,7 +20,9 @@ cd magic-markdown
 cp docker/docker-compose.template.yml docker/docker-compose.yml
 ```
 Edit the `docker/docker-compose.yml` file:
-- Set your API key in the environment section
+- Set your API key in TWO places:
+  1. Under the frontend service environment section
+  2. Under the backend service environment section
 - Configure the rate limit if needed (default is 60 requests/minute)
 
 3. Start the containers:
