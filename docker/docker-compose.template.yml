@@ -1,13 +1,5 @@
 name: magic-markdown
 
-# Shared environment variables
-environment:
-  # Add your API key here (required)
-  - API_KEY=
-
-# Backend-specific environment variables
-  - RATE_LIMIT=60  # Requests per minute (backend only)
-
 services:
   nginx:
     image: nginx:latest
@@ -27,7 +19,7 @@ services:
       context: ..
       dockerfile: docker/frontend/Dockerfile
     environment:
-      - API_KEY=${API_KEY}
+      - API_KEY=your_api_key_here
     networks:
       - app-network
     restart: unless-stopped
@@ -43,8 +35,8 @@ services:
       context: ..
       dockerfile: docker/backend/Dockerfile
     environment:
-      - API_KEY=${API_KEY}
-      - RATE_LIMIT=${RATE_LIMIT}
+      - API_KEY=your_api_key_here
+      - RATE_LIMIT=60
     networks:
       - app-network
     volumes:
