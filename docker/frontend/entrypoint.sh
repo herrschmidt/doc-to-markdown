@@ -5,7 +5,8 @@ set -e
 
 # Create config file with API key
 echo "window.MARKDOWN_CONFIG = {
-  apiKey: '$MARKDOWN_API_KEY'
+  apiKey: '$MARKDOWN_API_KEY',
+  apiUrl: '/api/v1'
 };" > /app/src/config.js
 
 # Start Python HTTP server
