@@ -1,19 +1,9 @@
 from fastapi import Request, HTTPException
 from fastapi.security import APIKeyHeader
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.middleware.cors import CORSMiddleware
 from ...config import settings
 import time
 from collections import defaultdict
-
-# CORS middleware
-class CorsMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = ", ".join(settings.allowed_origins)
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
-        return response
 
 # Rate limiting
 class RateLimitMiddleware(BaseHTTPMiddleware):

@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Depends
-from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .api.routes import convert
 from .api.middleware.security import RateLimitMiddleware, verify_api_key
@@ -40,28 +39,19 @@ app = FastAPI(
     },
 )
 
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.allowed_origins,
-    allow_credentials=True,
-    allow_methods=["POST", "GET"],  # Restrict to needed methods
-    allow_headers=["*"],
-)
-
 # Add security middleware
 app.add_middleware(RateLimitMiddleware)
 
 # Add routers with API key dependency
 app.include_router(
     convert.router,
-    prefix=settings.api_prefix,
+    prefix="/api/v1",
     tags=["conversion"],
     dependencies=[Depends(verify_api_key)]
 )
 
 @app.get(
-    "/api/health",
+    "/api/v1/health",
     tags=["health"],
     summary="Health Check",
     description="Check if the service is healthy and ready to accept requests",

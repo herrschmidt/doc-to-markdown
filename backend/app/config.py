@@ -14,19 +14,6 @@ class Settings(BaseSettings):
     
     # Security settings
     api_key: str  # Required, no default for security
-    allowed_origins: list[str]  # Required, no default for security
-
-    @validator('allowed_origins', pre=True)
-    def split_allowed_origins(cls, v):
-        if isinstance(v, str):
-            # Remove JSON array brackets and quotes if present
-            if v.startswith('[') and v.endswith(']'):
-                v = v[1:-1]
-            # Split and clean individual origins
-            return [origin.strip().strip('"') for origin in v.split(',')]
-        elif isinstance(v, list):
-            return v
-        return []
     rate_limit_per_minute: int = 60  # Default rate limit is fine to keep
     
     class Config:
